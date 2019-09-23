@@ -12,4 +12,10 @@ class Controller {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
         return simpleDateFormat.format(Date())
     }
+
+    @GetMapping(value = ["/v2"])
+    fun homeV2(): String {
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+        return "v2 ${simpleDateFormat.format(Date())}"
+    }
 }
