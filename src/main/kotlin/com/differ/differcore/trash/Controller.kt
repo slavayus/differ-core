@@ -7,13 +7,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @RestController
-class Controller(
-    private val data: Data
-) {
+class Controller {
     @GetMapping(value = ["/"])
     fun home(): String {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-        return simpleDateFormat.format(Date()) + "test=${data.test}"
+        return simpleDateFormat.format(Date())
     }
 
     @PostMapping(value = ["/v2"])

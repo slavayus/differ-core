@@ -1,7 +1,34 @@
 plugins {
     id 'groovy'
     id 'org.jetbrains.kotlin.jvm' version '1.3.41'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
 }
+
+group 'com.differ'
+version '1.0-SNAPSHOT'
+
+gradlePlugin {
+    plugins {
+        commitPlugin {
+            id = 'com.differ.differcommit.plugins.DifferCommitPlugin'
+            implementationClass = 'com.differ.differcommit.plugins.DifferCommitPlugin'
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.differ'
+            artifactId = 'differcommit'
+            version = '1.0-SNAPSHOT'
+
+            from components.java
+        }
+    }
+}
+
 
 
 repositories {
