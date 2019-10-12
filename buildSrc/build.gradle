@@ -5,8 +5,9 @@ plugins {
     id 'maven-publish'
 }
 
-group 'com.differ'
-version '1.0-SNAPSHOT'
+project.group = 'com.differ'
+project.ext.artifact = 'differ-commit'
+project.version = '1.0.0'
 
 gradlePlugin {
     plugins {
@@ -20,9 +21,9 @@ gradlePlugin {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'com.differ'
-            artifactId = 'differcommit'
-            version = '1.0-SNAPSHOT'
+            groupId = project.group
+            artifactId = project.artifact
+            version = project.version
 
             from components.java
         }

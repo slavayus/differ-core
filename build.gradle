@@ -1,14 +1,28 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.3.41'
     id 'org.springframework.boot' version '2.1.9.RELEASE'
     id 'io.spring.dependency-management' version "1.0.8.RELEASE"
+    id 'maven-publish'
 }
 
 apply plugin: 'maven'
+apply plugin: 'com.differ.differcommit.plugins.DifferCommitPlugin'
 
-group 'com.differ'
-version '1.0-SNAPSHOT'
+task loadProps(type: DefaultTask) {
+    if (Files.exists(Paths.get("$project.rootDir/src/main/resources/application.properties"))) {
+        def localProperties = new Properties()
+        localProperties.load(new FileInputStream("$project.rootDir/src/main/resources/application.properties"))
+        localProperties.each { prop -> project.ext.set(prop.key, prop.value) }
+        localProperties.each { prop -> println "$prop.key, $prop.value" }
+    }
+}
+
+project.group 'com.differ'
+project.version '1.0.0'
 
 sourceCompatibility = 1.8
 
@@ -16,18 +30,17 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'com.differ.differcommit.plugins.DifferCommitPlugin'
 
 //task committer(type: Committer) {
 //    projectHome = file('./')
 //    recipient = file('./differ')
 //}
 
+//differcommit.dependsOn loadProps
 build.dependsOn differcommit
 
 bootJar {
     enabled = false
-    //    archiveFileName = 'differ-core.jar'
 }
 
 jar {
