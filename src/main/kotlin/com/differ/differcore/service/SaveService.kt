@@ -1,5 +1,5 @@
 package com.differ.differcore.service
 
-interface DifferService {
+interface SaveService {
     fun start()
 }
