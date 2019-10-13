@@ -1,5 +1,8 @@
 package com.differ.differcommit.tasks
 
+import com.differ.differcommit.tasks.DifferCommit.Companion.DIFFER_JSON_VERSIONS_COMMIT_MESSAGE
+import com.differ.differcommit.tasks.DifferCommit.Companion.DIFFER_JSON_VERSIONS_HOME_DIR
+import com.differ.differcommit.tasks.DifferCommit.Companion.DIFFER_JSON_VERSIONS_TPM_DOC
 import com.differ.differcommit.utils.isInt
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
@@ -14,18 +17,20 @@ import java.util.*
 @ComponentScan("com.differ.differcommit.*")
 @PropertySource("classpath:application.properties")
 open class App(
-    @Value("\${differ.json.versions.home-dir}")
-    private val rawHomeDir: String,
+    @Value("\${${DIFFER_JSON_VERSIONS_HOME_DIR}}")
+    private val defaultHomeDir: String,
 
-    @Value("\${differ.json.versions.commit-message}")
+    @Value("\${${DIFFER_JSON_VERSIONS_COMMIT_MESSAGE}}")
     private val defaultCommitMessage: String,
 
-    @Value("\${differ.json.versions.tmp-doc}")
+    @Value("\${${DIFFER_JSON_VERSIONS_TPM_DOC}}")
     private val tmpDifferDoc: String
 ) {
     private var newApiVersionFileName: String
     private var newApiVersion: String
     private var projectHome: File = File(System.getProperty("user.dir"))
+    var homeDir: String? = null
+    var commitMessage: String? = null
 
     init {
         newApiVersion = resolveNewApiVersion()
@@ -45,8 +50,8 @@ open class App(
 
     private fun makeNewCommit() {
         val git = Git.open(projectHome)
-        git.add().addFilepattern(rawHomeDir + File.separator + newApiVersionFileName).call()
-        git.commit().setMessage(resolveCommitMessage()).call()
+        git.add().addFilepattern(homeDir() + File.separator + newApiVersionFileName).call()
+        git.commit().setMessage(commitMessage()).call()
         val pushCommand = git.push()
         pushCommand.setCredentialsProvider(
             UsernamePasswordCredentialsProvider(
@@ -69,9 +74,11 @@ open class App(
             }*/
     }
 
-    private fun resolveCommitMessage() = "$defaultCommitMessage: $newApiVersion"
+    private fun commitMessage() = "${commitMessage ?: defaultCommitMessage}: $newApiVersion"
 
-    private fun provideSaveFileDir() = projectHome.absolutePath + File.separator + rawHomeDir + File.separator
+    private fun provideSaveFileDir() = projectHome.absolutePath + File.separator + homeDir() + File.separator
+
+    private fun homeDir() = homeDir ?: defaultHomeDir
 
     private fun resolveNewApiVersion() =
         Arrays.stream(File(provideSaveFileDir()).listFiles() ?: emptyArray())
