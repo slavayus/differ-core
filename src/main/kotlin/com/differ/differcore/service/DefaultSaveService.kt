@@ -12,7 +12,8 @@ import java.io.File
 internal open class DefaultSaveService(
     private val documentationCache: DocumentationCache,
     private val objectMapper: ObjectMapper,
-    private val mapper: ServiceModelToSwagger2Mapper
+    private val mapper: ServiceModelToSwagger2Mapper,
+    private val diffService: DiffService
 ) : SaveService {
     private val defaultFileName = "differ-doc.json"
 
@@ -21,7 +22,10 @@ internal open class DefaultSaveService(
             .entries
             .map { it.key to mapper.mapDocumentation(it.value) }
             .toMap()
-            .let { saveMap(it) }
+            .let {
+                saveMap(it)
+                diffService.diff()
+            }
 
     private fun saveMap(it: Map<String, Swagger>) =
         objectMapper.writeValue(File(defaultFileName), it)
