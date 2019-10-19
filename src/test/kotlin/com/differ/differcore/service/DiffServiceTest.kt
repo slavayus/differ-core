@@ -15,7 +15,7 @@ class DiffServiceTest {
     @Test
     fun `just one tag should return map with key value`() {
         mutableMapOf<String, Any>().apply { set(".home", "basic-error-controller") }
-            .let { diffService.expandToJson(it) }
+            .let { diffService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertAll(
@@ -28,7 +28,7 @@ class DiffServiceTest {
     @Test
     fun `tag with one child should return map with nested map with one item`() {
         mutableMapOf<String, Any>().apply { set(".home.tags", "basic-error-controller") }
-            .let { diffService.expandToJson(it) }
+            .let { diffService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -45,7 +45,7 @@ class DiffServiceTest {
         mutableMapOf<String, Any>().apply {
             set(".home.tags", "basic-error-controller")
             set(".home.name", "basic-controller")
-        }.let { diffService.expandToJson(it) }
+        }.let { diffService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -63,7 +63,7 @@ class DiffServiceTest {
     @Test
     fun `tag with one child should return map with nested list with one item`() {
         mutableMapOf<String, Any>().apply { set(".home.tags.-0", "basic-error-controller") }
-            .let { diffService.expandToJson(it) }
+            .let { diffService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -84,7 +84,7 @@ class DiffServiceTest {
         mutableMapOf<String, Any>().apply {
             set(".home.tags.-0", "basic-error-controller")
             set(".home.tags.-1", "basic-controller")
-        }.let { diffService.expandToJson(it) }
+        }.let { diffService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -108,7 +108,7 @@ class DiffServiceTest {
         mutableMapOf<String, Any>().apply {
             set(".home.-0.tags", "basic-error-controller")
             set(".home.-1.name", "basic-controller")
-        }.let { diffService.expandToJson(it) }
+        }.let { diffService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -139,7 +139,7 @@ class DiffServiceTest {
             set(".home.-0.tags", "basic-error-controller")
             set(".home.-1.name", "basic-controller")
             set(".home.-1.name2", "basic2-controller")
-        }.let { diffService.expandToJson(it) }
+        }.let { diffService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -174,7 +174,7 @@ class DiffServiceTest {
         data[".home.tags.-1.name"] = "controller"
         data[".home.paths./.get.tags.-0"] = "controller"
         data[".home.paths./.get.tags.-1"] = "controller1"
-        val expandToJson = diffService.expandToJson(data)
+        val expandToJson = diffService.expandToMapObjects(data)
         println(expandToJson)
         assertTrue(true)
     }

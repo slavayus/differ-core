@@ -17,7 +17,7 @@ internal open class DefaultSaveService(
 ) : SaveService {
     private val defaultFileName = "differ-doc.json"
 
-    override fun start() =
+    override fun start() {
         documentationCache.all()
             .entries
             .map { it.key to mapper.mapDocumentation(it.value) }
@@ -26,6 +26,7 @@ internal open class DefaultSaveService(
                 saveMap(it)
                 diffService.diff()
             }
+    }
 
     private fun saveMap(it: Map<String, Swagger>) =
         objectMapper.writeValue(File(defaultFileName), it)

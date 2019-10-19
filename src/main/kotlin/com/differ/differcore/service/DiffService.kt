@@ -3,6 +3,7 @@ package com.differ.differcore.service
 import com.differ.differcore.utils.*
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.common.collect.MapDifference
 import com.google.common.collect.Maps
 import org.springframework.stereotype.Service
 import java.io.File
@@ -15,29 +16,23 @@ class DiffService(
     private val objectMapper: ObjectMapper
 ) {
     private val jsonKeySeparator = "."
-    fun diff() {
-        mapDifferenceGuava()
+    fun diff() = mapDifferenceGuava()
+
+    private fun mapDifferenceGuava(): MutableMap<String, Any> {
+        val difference = difference()
+
+        writeDifferenceToFile(difference)
+
+        return expandToMapObjects(
+            mutableMapOf<String, Any>().apply {
+                putAll(difference.entriesOnlyOnLeft())
+                putAll(difference.entriesOnlyOnRight())
+                putAll(difference.entriesDiffering())
+                putAll(difference.entriesInCommon())
+            })
     }
 
-    private fun mapDifferenceGuava() {
-        val mapper = ObjectMapper()
-        val type = object : TypeReference<Map<String, Any>>() {}
-
-        val leftMap =
-            mapper.readValue<Map<String, Any>>(
-                File("/Users/iusiumbeli/univer/diplom/differ-core/src/main/resources/jversions/0001.json"),
-                type
-            )
-        val rightMap =
-            mapper.readValue<Map<String, Any>>(
-                File("/Users/iusiumbeli/univer/diplom/differ-core/src/main/resources/jversions/0002.json"),
-                type
-            )
-        val leftFlatMap = leftMap.flatten(jsonKeySeparator)
-        val rightFlatMap = rightMap.flatten(jsonKeySeparator)
-
-        val difference = Maps.difference<String, Any>(leftFlatMap, rightFlatMap)
-
+    private fun writeDifferenceToFile(difference: MapDifference<String, Any>) {
         var outString = ""
         outString += "Entries only on left\n--------------------------\n"
         difference.entriesOnlyOnLeft().forEach { (key, value) -> outString += "$key: $value\n" }
@@ -52,21 +47,32 @@ class DiffService(
         difference.entriesInCommon().forEach { (key, value) -> outString += "$key: $value\n" }
         val outFile = File("out-diff.txt")
         outFile.writeText(outString)
-
-        val expandToJson = expandToJson(mutableMapOf<String, Any>().apply {
-            putAll(difference.entriesOnlyOnLeft())
-            putAll(difference.entriesOnlyOnRight())
-            putAll(difference.entriesDiffering())
-            putAll(difference.entriesInCommon())
-        })
-        println(objectMapper.writeValueAsString(expandToJson))
-
     }
 
-    fun expandToJson(unionData: MutableMap<String, Any>) = mutableMapOf<String, Any>().apply {
-        unionData.entries.stream()
-            .forEach { addEntry(it, this) }
+    private fun difference(): MapDifference<String, Any> {
+        val type = object : TypeReference<Map<String, Any>>() {}
+
+        val leftMap =
+            objectMapper.readValue<Map<String, Any>>(
+                File("/Users/iusiumbeli/univer/diplom/differ-core/src/main/resources/jversions/0001.json"),
+                type
+            )
+        val rightMap =
+            objectMapper.readValue<Map<String, Any>>(
+                File("/Users/iusiumbeli/univer/diplom/differ-core/src/main/resources/jversions/0002.json"),
+                type
+            )
+        val leftFlatMap = leftMap.flatten(jsonKeySeparator)
+        val rightFlatMap = rightMap.flatten(jsonKeySeparator)
+
+        return Maps.difference(leftFlatMap, rightFlatMap)
     }
+
+    fun expandToMapObjects(unionData: MutableMap<String, Any>) =
+        mutableMapOf<String, Any>().apply {
+            unionData.entries
+                .forEach { addEntry(it, this) }
+        }
 
     private fun addEntry(entry: Map.Entry<String, Any>, jsonMap: MutableMap<String, Any>) {
         val keyList = entry.key.split(jsonKeySeparator)

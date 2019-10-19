@@ -1,0 +1,24 @@
+:root {
+    --main-color: #61affe;
+    --smoke-white: #fafafa;
+    --dart-color: #3b4151;
+}
+
+body {
+    margin: 0;
+    background: var(--smoke-white);
+    font-family: Bitter,sans-serif;
+}
+
+.differ-ui .topbar {
+    padding: 8px;
+    background-color: var(--main-color);
+}
+
+.differ-ui .topbar a {
+    padding-left: 10%;
+    font-size: 1.5em;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--dart-color);
+}
