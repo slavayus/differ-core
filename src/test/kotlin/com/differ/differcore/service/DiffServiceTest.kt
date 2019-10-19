@@ -1,5 +1,6 @@
 package com.differ.differcore.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
@@ -7,7 +8,9 @@ import org.mockito.InjectMocks
 
 class DiffServiceTest {
     @InjectMocks
-    private val diffService = DiffService()
+    private val objectMapper = ObjectMapper()
+    @InjectMocks
+    private val diffService = DiffService(objectMapper)
 
     @Test
     fun `just one tag should return map with key value`() {

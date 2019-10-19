@@ -1,9 +1,6 @@
 package com.differ.differcore.service
 
-import com.differ.differcore.utils.asMutableListOfType
-import com.differ.differcore.utils.asMutableMapOfType
-import com.differ.differcore.utils.isInt
-import com.differ.differcore.utils.subList
+import com.differ.differcore.utils.*
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.collect.Maps
@@ -14,8 +11,10 @@ import kotlin.math.absoluteValue
 
 
 @Service
-class DiffService {
-    private val jsonKeyDelimiter = "."
+class DiffService(
+    private val objectMapper: ObjectMapper
+) {
+    private val jsonKeySeparator = "."
     fun diff() {
         mapDifferenceGuava()
     }
@@ -34,8 +33,8 @@ class DiffService {
                 File("/Users/iusiumbeli/univer/diplom/differ-core/src/main/resources/jversions/0002.json"),
                 type
             )
-        val leftFlatMap = FlatMapUtil.flatten(leftMap)
-        val rightFlatMap = FlatMapUtil.flatten(rightMap)
+        val leftFlatMap = leftMap.flatten(jsonKeySeparator)
+        val rightFlatMap = rightMap.flatten(jsonKeySeparator)
 
         val difference = Maps.difference<String, Any>(leftFlatMap, rightFlatMap)
 
@@ -54,25 +53,23 @@ class DiffService {
         val outFile = File("out-diff.txt")
         outFile.writeText(outString)
 
-        expandToJson(with(mutableMapOf<String, Any>()) {
+        val expandToJson = expandToJson(mutableMapOf<String, Any>().apply {
             putAll(difference.entriesOnlyOnLeft())
             putAll(difference.entriesOnlyOnRight())
             putAll(difference.entriesDiffering())
-            this
-        }.toMap())
-
+            putAll(difference.entriesInCommon())
+        })
+        println(objectMapper.writeValueAsString(expandToJson))
 
     }
 
-    fun expandToJson(unionData: Map<String, Any>): MutableMap<String, Any> {
-        val jsonMap = mutableMapOf<String, Any>()
+    fun expandToJson(unionData: MutableMap<String, Any>) = mutableMapOf<String, Any>().apply {
         unionData.entries.stream()
-            .forEach { addEntry(it, jsonMap) }
-        return jsonMap
+            .forEach { addEntry(it, this) }
     }
 
     private fun addEntry(entry: Map.Entry<String, Any>, jsonMap: MutableMap<String, Any>) {
-        val keyList = entry.key.split(jsonKeyDelimiter)
+        val keyList = entry.key.split(jsonKeySeparator)
         val key = keyList[1]
         val value = jsonMap[key]
         val secondKey = secondKey(keyList)
@@ -122,7 +119,7 @@ class DiffService {
         value.apply { asMutableListOfType<MutableMap<String, Any>>()?.add(currentMap) }
 
     private fun newKey(keyList: List<String>, start: Int) =
-        keyList.subList(start).joinToString(jsonKeyDelimiter, jsonKeyDelimiter)
+        keyList.subList(start).joinToString(jsonKeySeparator, jsonKeySeparator)
 
     private fun secondKey(keyList: List<String>) = takeIf { (keyList.size > 2) }?.let { keyList[2] } ?: ""
 }
