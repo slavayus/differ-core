@@ -1,6 +1,9 @@
 package com.differ.differcore.service
 
+import com.differ.differcore.utils.asMutableListOfType
+import com.differ.differcore.utils.asMutableMapOfType
 import com.differ.differcore.utils.isInt
+import com.differ.differcore.utils.subList
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.collect.Maps
@@ -68,79 +71,58 @@ class DiffService {
         return jsonMap
     }
 
-    fun addEntry(entry: Map.Entry<String, Any>, jsonMap: MutableMap<String, Any>) {
-        val key = entry.key.run { if (length > 0) substring(1) else this }
-            .run { if (entry.key.contains(jsonKeyDelimiter)) substringBefore(jsonKeyDelimiter) else this }
+    private fun addEntry(entry: Map.Entry<String, Any>, jsonMap: MutableMap<String, Any>) {
+        val keyList = entry.key.split(jsonKeyDelimiter)
+        val key = keyList[1]
         val value = jsonMap[key]
+        val secondKey = secondKey(keyList)
+        var tmpMap = mutableMapOf<String, Any>()
+        var leftKey = newKey(keyList, 2)
         if (value != null) {
             when (value) {
-                is MutableMap<*, *> ->
-                    addEntry(
-                        AbstractMap.SimpleEntry<String, Any>(
-                            entry.key.removePrefix("$jsonKeyDelimiter$key"),
-                            entry.value
-                        ), value as MutableMap<String, Any>
-                    )
+                is MutableMap<*, *> -> value.asMutableMapOfType<String, Any>()?.let {
+                    addEntry(AbstractMap.SimpleEntry<String, Any>(newKey(keyList, 2), entry.value), it)
+                }
                 is MutableList<*> -> {
-                    val secondKey = if (key.isNotEmpty()) {
-                        entry.key.substring(key.length + 1).run { if (length > 0) substring(1) else this }
-                            .run { if (entry.key.contains(jsonKeyDelimiter)) substringBefore(jsonKeyDelimiter) else this }
-                    } else {
-                        ""
-                    }
-                    var currentMap = mutableMapOf<String, Any>()
-                    var newKey = entry.key.removePrefix("$jsonKeyDelimiter$key")
-                    if (newKey.removePrefix("$jsonKeyDelimiter$secondKey").isEmpty() && (secondKey.isInt() && secondKey.toInt() <= 0)) {
-                        (value as MutableList<String>).add(entry.value as String)
+                    if (keyList.size <= 3 && (secondKey.isInt() && secondKey.toInt() <= 0)) {
+                        populateList(value, entry.value)
                         return
                     } else if (secondKey.isInt() && secondKey.toInt() <= 0) {
-                        if (value.size > secondKey.toInt().absoluteValue) {
-                            currentMap = value[secondKey.toInt().absoluteValue] as MutableMap<String, Any>
-                        } else {
-                            (value as MutableList<MutableMap<String, Any>>).add(currentMap)
-                        }
-                        newKey = newKey.removePrefix("$jsonKeyDelimiter$secondKey")
-                    } else if (secondKey.isEmpty()) {
-                        jsonMap[key] = entry.value
-                        return
-                    } else {
-                        jsonMap[key] = currentMap
+                        takeIf { value.size > secondKey.toInt().absoluteValue }?.let {
+                            tmpMap = value[secondKey.toInt().absoluteValue] as MutableMap<String, Any>
+                        } ?: combineMaps(value, tmpMap)
+                        leftKey = newKey(keyList, 3)
                     }
-                    addEntry(
-                        AbstractMap.SimpleEntry<String, Any>(
-                            newKey,
-                            entry.value
-                        ), currentMap
-                    )
+                    addEntry(AbstractMap.SimpleEntry<String, Any>(leftKey, entry.value), tmpMap)
                 }
             }
         } else {
-            val secondKey = if (key.isNotEmpty()) {
-                entry.key.substring(key.length + 1).run { if (length > 0) substring(1) else this }
-                    .run { if (entry.key.contains(jsonKeyDelimiter)) substringBefore(jsonKeyDelimiter) else this }
-            } else {
-                ""
+            when {
+                keyList.size <= 3 && (secondKey.isInt() && secondKey.toInt() <= 0) -> {
+                    jsonMap[key] = populateList(mutableListOf<Any>(), entry.value)
+                    return
+                }
+                secondKey.isInt() && secondKey.toInt() <= 0 -> {
+                    jsonMap[key] = combineMaps(mutableListOf<MutableMap<String, Any>>(), tmpMap)
+                    leftKey = newKey(keyList, 3)
+                }
+                secondKey.isEmpty() -> {
+                    jsonMap[key] = entry.value
+                    return
+                }
+                else -> jsonMap[key] = tmpMap
             }
-            val newMap = mutableMapOf<String, Any>()
-            var newKey = entry.key.removePrefix("$jsonKeyDelimiter$key")
-            if (newKey.removePrefix("$jsonKeyDelimiter$secondKey").isEmpty() && (secondKey.isInt() && secondKey.toInt() <= 0)) {
-                jsonMap[key] = mutableListOf<String>().apply { add(entry.value as String) }
-                return
-            } else if (secondKey.isInt() && secondKey.toInt() <= 0) {
-                jsonMap[key] = mutableListOf<MutableMap<String, Any>>().apply { add(newMap) }
-                newKey = newKey.removePrefix("$jsonKeyDelimiter$secondKey")
-            } else if (secondKey.isEmpty()) {
-                jsonMap[key] = entry.value
-                return
-            } else {
-                jsonMap[key] = newMap
-            }
-            addEntry(
-                AbstractMap.SimpleEntry<String, Any>(
-                    newKey,
-                    entry.value
-                ), newMap
-            )
+            addEntry(AbstractMap.SimpleEntry<String, Any>(leftKey, entry.value), tmpMap)
         }
     }
+
+    private fun populateList(list: MutableList<*>, value: Any) = list.apply { asMutableListOfType<Any>()?.add(value) }
+
+    private fun combineMaps(value: MutableList<*>, currentMap: MutableMap<String, Any>) =
+        value.apply { asMutableListOfType<MutableMap<String, Any>>()?.add(currentMap) }
+
+    private fun newKey(keyList: List<String>, start: Int) =
+        keyList.subList(start).joinToString(jsonKeyDelimiter, jsonKeyDelimiter)
+
+    private fun secondKey(keyList: List<String>) = takeIf { (keyList.size > 2) }?.let { keyList[2] } ?: ""
 }

@@ -98,13 +98,6 @@ class DiffServiceTest {
                     }
                 }
             }
-
-//        data[".home.tags.-0.name"] = "basic-error-controller"
-//        data[".home.tags.-0.description"] = "Basic Error Controller"
-//        data[".home.tags.-0.externalDocs"] = "null"
-//        data[".home.tags.-1.name"] = "controller"
-//        data[".home.paths./.get.tags.-0"] = "controller"
-//        data[".home.paths./.get.tags.-1"] = "controller1"
     }
 
     @Test
@@ -169,5 +162,17 @@ class DiffServiceTest {
             }
     }
 
-
+    @Test
+    fun baseTest() {
+        val data = mutableMapOf<String, Any>()
+        data[".home.tags.-0.name"] = "basic-error-controller"
+        data[".home.tags.-0.description"] = "Basic Error Controller"
+        data[".home.tags.-0.externalDocs"] = "null"
+        data[".home.tags.-1.name"] = "controller"
+        data[".home.paths./.get.tags.-0"] = "controller"
+        data[".home.paths./.get.tags.-1"] = "controller1"
+        val expandToJson = diffService.expandToJson(data)
+        println(expandToJson)
+        assertTrue(true)
+    }
 }
