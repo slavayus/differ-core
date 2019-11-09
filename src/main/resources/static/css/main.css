@@ -1,24 +1,98 @@
 :root {
     --main-color: #61affe;
     --smoke-white: #fafafa;
-    --dart-color: #3b4151;
+    --dark-color: #3b4151;
+    --lite-dark-color: #dde9f2;
 }
 
 body {
     margin: 0;
     background: var(--smoke-white);
-    font-family: Bitter,sans-serif;
+    font-family: Bitter, sans-serif;
 }
 
-.differ-ui .topbar {
+.topbar {
     padding: 8px;
     background-color: var(--main-color);
 }
 
-.differ-ui .topbar a {
+.topbar a {
     padding-left: 10%;
     font-size: 1.5em;
     font-weight: 700;
     text-decoration: none;
-    color: var(--dart-color);
+    color: var(--dark-color);
+}
+
+.wrapper {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 auto;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.differ-ui a.nostyle {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.differ-ui .block-tag {
+    font-size: 24px;
+    margin: 0 0 5px;
+    color: var(--dark-color);
+}
+
+.differ-ui .block-tag-section {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+}
+
+.differ-ui .tag-section {
+    width: 50%;
+}
+
+.differ-ui .tag-section.left {
+    padding-right: 5px;
+}
+
+.differ-ui .tag-section.right {
+    padding-left: 5px;
+}
+
+.differ-ui .block-tag small {
+    font-size: 14px;
+    font-weight: 400;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    padding: 0 10px;
+}
+
+.differ-ui .expand-operation {
+    border: none;
+    background: none;
+}
+
+.differ-ui .block-tag {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    padding: 10px 20px 10px 10px;
+    cursor: pointer;
+    -webkit-transition: all .2s;
+    transition: all .2s;
+    border-bottom: 1px solid rgba(59, 65, 81, .3);
+}
+
+.differ-ui .block-tag:hover {
+    background-color: var(--lite-dark-color);
 }

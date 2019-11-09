@@ -8,6 +8,7 @@ import com.google.common.collect.Maps
 import org.springframework.stereotype.Service
 import java.io.File
 import java.util.*
+import javax.annotation.PostConstruct
 import kotlin.math.absoluteValue
 
 
@@ -16,11 +17,11 @@ class DiffService(
     private val objectMapper: ObjectMapper
 ) {
     private val jsonKeySeparator = "."
+    lateinit var difference: MapDifference<String, Any>
+
     fun diff() = mapDifferenceGuava()
 
     private fun mapDifferenceGuava(): MutableMap<String, Any> {
-        val difference = difference()
-
         writeDifferenceToFile(difference)
 
         return expandToMapObjects(
@@ -49,7 +50,8 @@ class DiffService(
         outFile.writeText(outString)
     }
 
-    private fun difference(): MapDifference<String, Any> {
+    @PostConstruct
+    private fun difference() {
         val type = object : TypeReference<Map<String, Any>>() {}
 
         val leftMap =
@@ -65,7 +67,7 @@ class DiffService(
         val leftFlatMap = leftMap.flatten(jsonKeySeparator)
         val rightFlatMap = rightMap.flatten(jsonKeySeparator)
 
-        return Maps.difference(leftFlatMap, rightFlatMap)
+        this.difference = Maps.difference(leftFlatMap, rightFlatMap)
     }
 
     fun expandToMapObjects(unionData: MutableMap<String, Any>) =
