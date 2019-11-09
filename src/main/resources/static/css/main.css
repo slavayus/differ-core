@@ -3,6 +3,7 @@
     --smoke-white: #fafafa;
     --dark-color: #3b4151;
     --lite-dark-color: #dde9f2;
+    --removed-color: rgba(255, 105, 180, 0.33);
 }
 
 body {
@@ -95,4 +96,9 @@ body {
 
 .differ-ui .block-tag:hover {
     background-color: var(--lite-dark-color);
+}
+
+.differ-ui .block-tag .removed {
+    text-decoration: line-through;
+    /*background-color: var(--removed-color);*/
 }

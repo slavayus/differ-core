@@ -28,8 +28,8 @@ class DiffService(
             mutableMapOf<String, Any>().apply {
                 putAll(difference.entriesOnlyOnLeft())
                 putAll(difference.entriesOnlyOnRight())
-                putAll(difference.entriesDiffering())
                 putAll(difference.entriesInCommon())
+                putAll(difference.entriesDiffering())
             })
     }
 
