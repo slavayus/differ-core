@@ -19,7 +19,7 @@ class DiffService(
     private val jsonKeySeparator = "."
     lateinit var difference: MapDifference<String, Any>
 
-    fun diff() = mapDifferenceGuava()
+    fun fullDiff() = mapDifferenceGuava()
 
     private fun mapDifferenceGuava(): MutableMap<String, Any> {
         writeDifferenceToFile(difference)
@@ -30,8 +30,24 @@ class DiffService(
                 putAll(difference.entriesOnlyOnRight())
                 putAll(difference.entriesInCommon())
                 putAll(difference.entriesDiffering())
-            })
+            }.toSortedMap()
+        )
     }
+
+    fun entriesOnlyOnLeft() =
+        expandToMapObjects(mutableMapOf<String, Any>().apply {
+            putAll(difference.entriesOnlyOnLeft())
+        }.toSortedMap())
+
+    fun entriesOnlyOnRight() =
+        expandToMapObjects(mutableMapOf<String, Any>().apply {
+            putAll(difference.entriesOnlyOnRight())
+        }.toSortedMap())
+
+    fun entriesInCommon() =
+        expandToMapObjects(mutableMapOf<String, Any>().apply {
+            putAll(difference.entriesInCommon())
+        }.toSortedMap())
 
     private fun writeDifferenceToFile(difference: MapDifference<String, Any>) {
         var outString = ""

@@ -24,7 +24,7 @@ internal open class DefaultSaveService(
             .toMap()
             .let {
                 saveMap(it)
-                diffService.diff()
+                diffService.fullDiff()
             }
     }
 

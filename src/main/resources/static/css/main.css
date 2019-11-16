@@ -98,7 +98,7 @@ body {
     background-color: var(--lite-dark-color);
 }
 
-.differ-ui .block-tag .removed {
+.differ-ui .wrapper .removed {
     text-decoration: line-through;
     /*background-color: var(--removed-color);*/
 }

@@ -38,8 +38,10 @@
 </#macro>
 
 <#macro buildLeftBlockTag tag index>
+    <#assign render=statics['com.differ.differcore.utils.RenderUtils']>
     <h4 class="block-tag">
-        <#if tag.name?is_hash><#assign tagName=tag.name.leftValue()><#else><#assign tagName=tag.name></#if>
+
+        <#if tag.name?is_hash><#assign tagName=tag.name.leftValue()><#else><#assign tagName=tag.name!""></#if>
 
         <#if tag.name?is_hash>
             <a class="nostyle removed" href="#/${tagName}"><span>${tagName}</span></a>
@@ -57,22 +59,50 @@
 
     </h4>
 
-    <div class="block-content" display="none">
+    <div class="block-content">
         <#list full?values[0].paths as path, methods>
             <#if methods?has_content>
                 <#list methods as method, content>
-                    <#assign shouldRenderMethod = false/>
-                    <#if !content?is_string>
-                        <#list content.tags as ttag>
-                            <#if ttag?is_hash><#assign ttagName=ttag.leftValue()><#else><#assign ttagName=ttag></#if>
-                            <#if tagName == ttagName>
-                                <#assign shouldRenderMethod=true>
-                            </#if>
-                        </#list>
-                    </#if>
+                    <#if (!(right?values[0].paths[path][method])??)>
+                        <#assign shouldRenderMethod = false/>
+                        <#if !content?is_string>
+                            <#list content.tags as ttag>
+                                <#if ttag?is_hash><#assign ttagName=ttag.leftValue()><#else><#assign ttagName=ttag></#if>
+                                <#if tagName == ttagName>
+                                    <#assign shouldRenderMethod=true>
+                                </#if>
+                            </#list>
+                        </#if>
 
-                    <#if shouldRenderMethod>
-                        <@renderMethod method path content/>
+                        <#if shouldRenderMethod>
+                            <#if content.summary?is_hash>
+                                <@renderMethod method path content.summary.leftValue() "" "removed"/>
+                            <#else>
+                                <@renderMethod method path content.summary ""/>
+                            </#if>
+                        </#if>
+
+                    <#else >
+                        <div>path=${path}</div>
+                        <#if right?values[0].paths[path][method]?is_string && (right?values[0].paths[path][method] == "null" )>
+
+                            <#assign leftContent=left?values[0].paths[path][method]/>
+
+                            <#assign shouldRenderMethod = false/>
+                            <#if !leftContent?is_string>
+                                <#list leftContent.tags as ttag>
+                                    <#if tagName == ttag>
+                                        <#assign shouldRenderMethod=true>
+                                    </#if>
+                                </#list>
+                            </#if>
+
+                            <#if shouldRenderMethod>
+                                <@renderMethod method path leftContent.summary "removed" "removed"/>
+                            </#if>
+
+
+                        </#if>
                     </#if>
                 </#list>
             </#if>
@@ -91,36 +121,39 @@
         <@buildExpandButton/>
     </h4>
 
-    <div class="block-content" display="none">
+    <div class="block-content">
         <#list full?values[0].paths as path, methods>
-            <#if methods?has_content>
-                <#list methods as method, content>
-                    <#assign shouldRenderMethod = false/>
-                    <#if !content?is_string>
-                        <#list content.tags as ttag>
-                            <#if ttag?is_hash><#assign ttagName=ttag.rightValue()><#else><#assign ttagName=ttag></#if>
-                            <#if tagName == ttagName>
-                                <#assign shouldRenderMethod=true>
-                            </#if>
-                        </#list>
-                    </#if>
+            <#if !(left?values[0].paths[path])??>
+                <#if methods?has_content>
+                    <#list methods as method, content>
+                        <#assign shouldRenderMethod = false/>
+                        <#if !content?is_string>
+                            <#list content.tags as ttag>
+                                <#if ttag?is_hash><#assign ttagName=ttag.rightValue()><#else><#assign ttagName=ttag></#if>
+                                <#if tagName == ttagName>
+                                    <#assign shouldRenderMethod=true>
+                                </#if>
+                            </#list>
+                        </#if>
 
-                    <#if shouldRenderMethod>
-                        <@renderMethod method path content/>
-                    </#if>
-                </#list>
+                        <#if shouldRenderMethod>
+                            <#if content.summary?is_hash><#assign contentSummary=content.summary.rightValue()><#else><#assign contentSummary=content.summary></#if>
+                            <@renderMethod method path contentSummary ""/>
+                        </#if>
+                    </#list>
+                </#if>
             </#if>
         </#list>
     </div>
 </#macro>
 
-<#macro renderMethod method path content>
+<#macro renderMethod method path content removedMethod removed="">
     <span>
         <div class="opblock opblock-${method}">
             <div class="opblock-summary">
-                <span class="opblock-summary-method">${method}</span>
-                <span class="opblock-summary-path">${path}</span>
-                <div class="opblock-summary-description">${content.summary}</div>
+                <span class="opblock-summary-method ${removedMethod}">${method}</span>
+                <span class="opblock-summary-path ${removedMethod}">${path}</span>
+                <div class="opblock-summary-description ${removed}">${content}</div>
             </div>
         </div>
     </span>
