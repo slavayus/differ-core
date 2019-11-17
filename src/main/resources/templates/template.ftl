@@ -63,7 +63,7 @@
         <#list full?values[0].paths as path, methods>
             <#if methods?has_content>
                 <#list methods as method, content>
-                    <#if RenderUtils.removedMetdhod(right, path, method)>
+                    <#if RenderUtils.containsMethod(right, path, method)>
                         <#if left?values[0].paths[path][method]??>
                             <#assign leftContent=left?values[0].paths[path][method]/>
                             <#if RenderUtils.shouldRenderMethod(tagName, leftContent)>
@@ -100,15 +100,22 @@
 
     <div class="block-content">
         <#list full?values[0].paths as path, methods>
-            <#if !(left?values[0].paths[path])??>
-                <#if methods?has_content>
-                    <#list methods as method, content>
+            <#if methods?has_content>
+                <#list methods as method, content>
+                    <#if RenderUtils.containsMethod(left, path, method)>
+                        <#if right?values[0].paths[path][method]??>
+                            <#assign leftContent=right?values[0].paths[path][method]/>
+                            <#if RenderUtils.shouldRenderMethod(tagName, leftContent)>
+                                <@renderMethod method path leftContent.summary "" ""/>
+                            </#if>
+                        </#if>
+                    <#else>
                         <#if RenderUtils.shouldRenderMethod(tagName, content)>
                             <#assign contentSummary=RenderUtils.attributeValue(content, "summary")>
                             <@renderMethod method path contentSummary ""/>
                         </#if>
-                    </#list>
-                </#if>
+                    </#if>
+                </#list>
             </#if>
         </#list>
     </div>

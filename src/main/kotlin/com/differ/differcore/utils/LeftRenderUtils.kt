@@ -25,7 +25,7 @@ class LeftRenderUtils {
         }
 
 
-        fun removedMetdhod(right: Map<String, Any?>, path: String, method: String): Boolean {
+        fun containsMethod(right: Map<String, Any?>, path: String, method: String): Boolean {
             val methods = ((right.values.first() as Map<*, *>)["paths"] as Map<*, *>)[path]
             return if (methods != null) {
                 (methods as Map<*, *>).containsKey(method)
