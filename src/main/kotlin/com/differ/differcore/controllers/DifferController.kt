@@ -20,7 +20,7 @@ class DifferController(
         model["full"] = diffService.fullDiff()
         model["left"] = diffService.entriesOnlyOnLeft()
         model["right"] = diffService.entriesOnlyOnRight()
-        model["common"] = diffService.entriesInCommon()
+//        model["common"] = diffService.entriesInCommon()
         return "template"
     }
 
