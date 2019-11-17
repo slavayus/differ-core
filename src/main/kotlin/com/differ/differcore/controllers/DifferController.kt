@@ -1,12 +1,12 @@
 package com.differ.differcore.controllers
 
 import com.differ.differcore.service.DiffService
+import freemarker.template.Configuration
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.ui.set
 import org.springframework.web.bind.annotation.GetMapping
-import freemarker.ext.beans.BeansWrapper
-import freemarker.template.Version
+import freemarker.template.DefaultObjectWrapperBuilder
 
 
 @Controller
@@ -16,9 +16,7 @@ class DifferController(
 
     @GetMapping(value = [DEFAULT_URL])
     fun getDiffer(model: Model): String {
-        val wrapper = BeansWrapper(Version(2, 3, 27))
-        val statics = wrapper.staticModels
-        model["statics"] = statics
+        model["statics"] = DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_29).build().staticModels
         model["full"] = diffService.fullDiff()
         model["left"] = diffService.entriesOnlyOnLeft()
         model["right"] = diffService.entriesOnlyOnRight()

@@ -34,7 +34,7 @@ inline fun <reified K, reified V> MutableMap<*, *>.asMutableMapOfType(): Mutable
 inline fun <reified T> List<T>.subList(start: Int): List<T> =
     subList(start, size)
 
-fun Map<*, *>.flatten(keySeparator: String): Map<String, Any> =
+fun Map<*, *>.flatten(keySeparator: String): Map<String, Any?> =
     entries
         .stream()
         .map { SimpleEntry<String, Any>(it.key.toString(), it.value) }
@@ -44,7 +44,7 @@ fun Map<*, *>.flatten(keySeparator: String): Map<String, Any> =
             { m, e -> m[keySeparator + e.key] = e.value },
             { obj, m -> obj.putAll(m) })
 
-fun Map<*, *>.flatten(entry: Entry<String, Any>, keySeparator: String): Stream<Entry<String, Any>> =
+fun Map<*, *>.flatten(entry: Entry<String, Any?>, keySeparator: String): Stream<Entry<String, Any?>> =
     with(entry.value) {
         when (this) {
             is Map<*, *> ->
@@ -52,21 +52,18 @@ fun Map<*, *>.flatten(entry: Entry<String, Any>, keySeparator: String): Stream<E
                     .stream()
                     .flatMap { e ->
                         flatten(
-                            SimpleEntry<String, Any>(
+                            SimpleEntry<String, Any?>(
                                 "${entry.key}$keySeparator${e.key}",
-                                nullAsString(e.value)
+                                e.value
                             ),
                             keySeparator
                         )
                     }
             is List<*> ->
                 IntStream.range(0, size)
-                    .mapToObj { i -> SimpleEntry<String, Any>("${entry.key}$keySeparator-$i", nullAsString(this[i])) }
+                    .mapToObj { i -> SimpleEntry<String, Any?>("${entry.key}$keySeparator-$i", this[i]) }
                     .flatMap { flatten(it, keySeparator) }
             else ->
                 Stream.of(entry)
         }
     }
-
-fun nullAsString(value: Any?): Any = value ?: "$value"
-

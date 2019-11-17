@@ -38,7 +38,7 @@
 </#macro>
 
 <#macro buildLeftBlockTag tag index>
-    <#assign render=statics['com.differ.differcore.utils.RenderUtils']>
+    <#assign RenderUtils=statics['com.differ.differcore.utils.LeftRenderUtils'].Companion>
     <h4 class="block-tag">
 
         <#if tag.name?is_hash><#assign tagName=tag.name.leftValue()><#else><#assign tagName=tag.name!""></#if>
@@ -63,45 +63,20 @@
         <#list full?values[0].paths as path, methods>
             <#if methods?has_content>
                 <#list methods as method, content>
-                    <#if (!(right?values[0].paths[path][method])??)>
-                        <#assign shouldRenderMethod = false/>
-                        <#if !content?is_string>
-                            <#list content.tags as ttag>
-                                <#if ttag?is_hash><#assign ttagName=ttag.leftValue()><#else><#assign ttagName=ttag></#if>
-                                <#if tagName == ttagName>
-                                    <#assign shouldRenderMethod=true>
-                                </#if>
-                            </#list>
+                    <#if RenderUtils.removedMetdhod(right, path, method)>
+                        <#if left?values[0].paths[path][method]??>
+                            <#assign leftContent=left?values[0].paths[path][method]/>
+                            <#if RenderUtils.shouldRenderMethod(tagName, leftContent)>
+                                <@renderMethod method path leftContent.summary "removed" "removed"/>
+                            </#if>
                         </#if>
-
-                        <#if shouldRenderMethod>
+                    <#else >
+                        <#if RenderUtils.shouldRenderMethod(tagName, content)>
                             <#if content.summary?is_hash>
                                 <@renderMethod method path content.summary.leftValue() "" "removed"/>
                             <#else>
                                 <@renderMethod method path content.summary ""/>
                             </#if>
-                        </#if>
-
-                    <#else >
-                        <div>path=${path}</div>
-                        <#if right?values[0].paths[path][method]?is_string && (right?values[0].paths[path][method] == "null" )>
-
-                            <#assign leftContent=left?values[0].paths[path][method]/>
-
-                            <#assign shouldRenderMethod = false/>
-                            <#if !leftContent?is_string>
-                                <#list leftContent.tags as ttag>
-                                    <#if tagName == ttag>
-                                        <#assign shouldRenderMethod=true>
-                                    </#if>
-                                </#list>
-                            </#if>
-
-                            <#if shouldRenderMethod>
-                                <@renderMethod method path leftContent.summary "removed" "removed"/>
-                            </#if>
-
-
                         </#if>
                     </#if>
                 </#list>
@@ -112,8 +87,10 @@
 </#macro>
 
 <#macro buildRightBlockTag tag index>
-    <#if tag.name?is_hash><#assign tagName=tag.name.rightValue()><#else><#assign tagName=tag.name></#if>
-    <#if tag.description?is_hash><#assign tagDescription=tag.description.rightValue()><#else><#assign tagDescription=tag.description></#if>
+    <#assign RenderUtils=statics['com.differ.differcore.utils.RightRenderUtils'].Companion>
+
+    <#assign tagName=RenderUtils.attributeValue(tag, "name")>
+    <#assign tagDescription=RenderUtils.attributeValue(tag, "description")>
 
     <h4 class="block-tag">
         <a class="nostyle" href="#/${tagName}"><span>${tagName}</span></a>
@@ -126,18 +103,8 @@
             <#if !(left?values[0].paths[path])??>
                 <#if methods?has_content>
                     <#list methods as method, content>
-                        <#assign shouldRenderMethod = false/>
-                        <#if !content?is_string>
-                            <#list content.tags as ttag>
-                                <#if ttag?is_hash><#assign ttagName=ttag.rightValue()><#else><#assign ttagName=ttag></#if>
-                                <#if tagName == ttagName>
-                                    <#assign shouldRenderMethod=true>
-                                </#if>
-                            </#list>
-                        </#if>
-
-                        <#if shouldRenderMethod>
-                            <#if content.summary?is_hash><#assign contentSummary=content.summary.rightValue()><#else><#assign contentSummary=content.summary></#if>
+                        <#if RenderUtils.shouldRenderMethod(tagName, content)>
+                            <#assign contentSummary=RenderUtils.attributeValue(content, "summary")>
                             <@renderMethod method path contentSummary ""/>
                         </#if>
                     </#list>
@@ -147,13 +114,13 @@
     </div>
 </#macro>
 
-<#macro renderMethod method path content removedMethod removed="">
+<#macro renderMethod method path content removedMethod removedDescription="">
     <span>
         <div class="opblock opblock-${method}">
             <div class="opblock-summary">
                 <span class="opblock-summary-method ${removedMethod}">${method}</span>
                 <span class="opblock-summary-path ${removedMethod}">${path}</span>
-                <div class="opblock-summary-description ${removed}">${content}</div>
+                <div class="opblock-summary-description ${removedDescription}">${content}</div>
             </div>
         </div>
     </span>

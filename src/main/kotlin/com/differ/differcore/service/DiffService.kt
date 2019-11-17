@@ -17,11 +17,11 @@ class DiffService(
     private val objectMapper: ObjectMapper
 ) {
     private val jsonKeySeparator = "."
-    lateinit var difference: MapDifference<String, Any>
+    private lateinit var difference: MapDifference<String, Any>
 
     fun fullDiff() = mapDifferenceGuava()
 
-    private fun mapDifferenceGuava(): MutableMap<String, Any> {
+    private fun mapDifferenceGuava(): MutableMap<String, Any?> {
         writeDifferenceToFile(difference)
 
         return expandToMapObjects(
@@ -87,22 +87,22 @@ class DiffService(
     }
 
     fun expandToMapObjects(unionData: MutableMap<String, Any>) =
-        mutableMapOf<String, Any>().apply {
+        mutableMapOf<String, Any?>().apply {
             unionData.entries
                 .forEach { addEntry(it, this) }
         }
 
-    private fun addEntry(entry: Map.Entry<String, Any>, jsonMap: MutableMap<String, Any>) {
+    private fun addEntry(entry: Map.Entry<String, Any?>, jsonMap: MutableMap<String, Any?>) {
         val keyList = entry.key.split(jsonKeySeparator)
         val key = keyList[1]
         val value = jsonMap[key]
         val secondKey = secondKey(keyList)
-        var tmpMap = mutableMapOf<String, Any>()
+        var tmpMap = mutableMapOf<String, Any?>()
         var leftKey = newKey(keyList, 2)
         if (value != null) {
             when (value) {
-                is MutableMap<*, *> -> value.asMutableMapOfType<String, Any>()?.let {
-                    addEntry(AbstractMap.SimpleEntry<String, Any>(newKey(keyList, 2), entry.value), it)
+                is MutableMap<*, *> -> value.asMutableMapOfType<String, Any?>()?.let {
+                    addEntry(AbstractMap.SimpleEntry<String, Any?>(newKey(keyList, 2), entry.value), it)
                 }
                 is MutableList<*> -> {
                     if (keyList.size <= 3 && (secondKey.isInt() && secondKey.toInt() <= 0)) {
@@ -110,7 +110,7 @@ class DiffService(
                         return
                     } else if (secondKey.isInt() && secondKey.toInt() <= 0) {
                         takeIf { value.size > secondKey.toInt().absoluteValue }?.let {
-                            tmpMap = value[secondKey.toInt().absoluteValue] as MutableMap<String, Any>
+                            tmpMap = value[secondKey.toInt().absoluteValue] as MutableMap<String, Any?>
                         } ?: combineMaps(value, tmpMap)
                         leftKey = newKey(keyList, 3)
                     }
@@ -137,10 +137,10 @@ class DiffService(
         }
     }
 
-    private fun populateList(list: MutableList<*>, value: Any) = list.apply { asMutableListOfType<Any>()?.add(value) }
+    private fun populateList(list: MutableList<*>, value: Any?) = list.apply { asMutableListOfType<Any?>()?.add(value) }
 
-    private fun combineMaps(value: MutableList<*>, currentMap: MutableMap<String, Any>) =
-        value.apply { asMutableListOfType<MutableMap<String, Any>>()?.add(currentMap) }
+    private fun combineMaps(value: MutableList<*>, currentMap: MutableMap<String, Any?>) =
+        value.apply { asMutableListOfType<MutableMap<String, Any?>>()?.add(currentMap) }
 
     private fun newKey(keyList: List<String>, start: Int) =
         keyList.subList(start).joinToString(jsonKeySeparator, jsonKeySeparator)
