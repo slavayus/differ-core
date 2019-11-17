@@ -5,12 +5,25 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
 import org.mockito.InjectMocks
+import org.mockito.MockitoAnnotations
+import org.junit.jupiter.api.BeforeEach
+import org.mockito.Mock
+
 
 class DiffServiceTest {
+    @Mock
+    private lateinit var objectMapper: ObjectMapper
+
+    @Mock
+    private lateinit var versionService: VersionService
+
     @InjectMocks
-    private val objectMapper = ObjectMapper()
-    @InjectMocks
-    private val diffService = DiffService(objectMapper)
+    private lateinit var diffService: DiffServiceImpl
+
+    @BeforeEach
+    fun initMocks() {
+        MockitoAnnotations.initMocks(this)
+    }
 
     @Test
     fun `just one tag should return map with key value`() {

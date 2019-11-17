@@ -26,5 +26,18 @@ class VersionServiceImpl(
             ?: Collections.emptyList()
     }
 
+    override fun getLastVersionFile(): File? {
+        return jversions
+            .listFiles()
+            ?.max()
+    }
 
+    override fun getPenultimateVersionFile(): File? {
+        val sortedVersions = jversions.listFiles()?.sorted()
+        return if (sortedVersions != null && sortedVersions.size > 1) {
+            sortedVersions[sortedVersions.size - 2]
+        } else {
+            null
+        }
+    }
 }

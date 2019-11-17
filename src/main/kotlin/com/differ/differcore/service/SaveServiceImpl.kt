@@ -9,12 +9,12 @@ import java.io.File
 
 
 @Service
-internal open class DefaultSaveService(
+internal open class SaveServiceImpl(
     private val documentationCache: DocumentationCache,
     private val objectMapper: ObjectMapper,
-    private val mapper: ServiceModelToSwagger2Mapper,
-    private val diffService: DiffService
+    private val mapper: ServiceModelToSwagger2Mapper
 ) : SaveService {
+
     private val defaultFileName = "differ-doc.json"
 
     override fun start() {
@@ -22,10 +22,7 @@ internal open class DefaultSaveService(
             .entries
             .map { it.key to mapper.mapDocumentation(it.value) }
             .toMap()
-            .let {
-                saveMap(it)
-                diffService.fullDiff()
-            }
+            .let { saveMap(it) }
     }
 
     private fun saveMap(it: Map<String, Swagger>) =
