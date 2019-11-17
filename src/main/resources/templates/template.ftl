@@ -21,6 +21,30 @@
 </div>
 
 <div class="differ-ui">
+    <div class="version-section">
+        <span class="block-tag-section">
+            <span class="tag-section left">
+                <label>Select version
+                    <select class="version-select">
+                        <#list versions as version>
+                            <option>${version}</option>
+                        </#list>
+                    </select>
+                </label>
+            </span>
+
+            <span class="tag-section right">
+                <label>Select version
+                    <select class="version-select">
+                        <#list versions as version>
+                            <option>${version}</option>
+                        </#list>
+                    </select>
+                </label>
+            </span>
+        </span>
+    </div>
+
     <div class="wrapper">
         <#list full?values[0].tags as tag>
             <span class="block-tag-section">
