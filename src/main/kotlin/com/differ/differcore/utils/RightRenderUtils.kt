@@ -34,11 +34,7 @@ class RightRenderUtils {
 
         fun containsMethod(left: Map<String, Any?>, path: String, method: String): Boolean {
             val methods = ((left.values.first() as Map<*, *>)["paths"] as Map<*, *>)[path]
-            return if (methods != null) {
-                (methods as Map<*, *>).containsKey(method)
-            } else {
-                false
-            }
+            return methods != null && (methods as Map<*, *>).containsKey(method)
         }
     }
 }

@@ -19,13 +19,19 @@ class DiffServiceImpl(
 ) : DiffService {
     private val jsonKeySeparator = "."
     private lateinit var difference: MapDifference<String, Any>
+    private val type = object : TypeReference<Map<String, Any>>() {}
 
     @PostConstruct
-    private fun difference() {
-        val type = object : TypeReference<Map<String, Any>>() {}
+    private fun startDifference() {
+        val penultimate = versionService.getPenultimateVersionFile()
+        val last = versionService.getLastVersionFile()
 
-        val leftFlatMap = flattenMap(versionService.getPenultimateVersionFile(), type)
-        var rightFlatMap = flattenMap(versionService.getLastVersionFile(), type)
+        difference(penultimate, last)
+    }
+
+    private fun difference(penultimate: File?, last: File?) {
+        val leftFlatMap = flattenMap(penultimate, type)
+        var rightFlatMap = flattenMap(last, type)
 
         if (rightFlatMap.isEmpty() && leftFlatMap.isNotEmpty()) {
             rightFlatMap = leftFlatMap
@@ -34,6 +40,12 @@ class DiffServiceImpl(
         this.difference = Maps.difference(leftFlatMap, rightFlatMap)
 
         writeDifferenceToFile(difference)
+    }
+
+    override fun difference(penultimate: String, last: String) {
+        val penultimateFile = versionService.getVersionFile(penultimate) ?: versionService.getPenultimateVersionFile()
+        val lastFile = versionService.getVersionFile(last) ?: versionService.getLastVersionFile()
+        difference(penultimateFile, lastFile)
     }
 
     private fun flattenMap(file: File?, type: TypeReference<Map<String, Any>>) =

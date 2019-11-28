@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <#import "head.ftl" as head />
-<#import "rightBuilder.ftl" as rightBuilder />
-<#import "leftBuilder.ftl" as leftBuilder />
+<#import "apiBuilder.ftl" as apiBuilder />
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Differ service</title>
-    <link rel="stylesheet" type="text/css" href="/css/main.css">
     <link rel="stylesheet" type="text/css" href="/css/main.css">
     <script type="text/javascript" src="/js/jquery/jquery-3.4.1.js"></script>
     <script type="text/javascript" src="/js/main.js"></script>
@@ -23,21 +21,21 @@
 <div class="differ-ui">
     <div class="version-section">
         <span class="block-tag-section">
-            <span class="tag-section left">
+            <span class="tag-section version left">
                 <label>Select version
-                    <select class="version-select">
+                    <select class="version-select" onchange="versionChanged()">
                         <#list versions as version>
-                            <option>${version}</option>
+                            <option <#if version?index==versions?size-1>selected</#if>>${version}</option>
                         </#list>
                     </select>
                 </label>
             </span>
 
-            <span class="tag-section right">
+            <span class="tag-section version right">
                 <label>Select version
-                    <select class="version-select">
+                    <select class="version-select" onchange="versionChanged()">
                         <#list versions as version>
-                            <option>${version}</option>
+                            <option <#if version?index==versions?size>selected</#if>>${version}</option>
                         </#list>
                     </select>
                 </label>
@@ -45,24 +43,7 @@
         </span>
     </div>
 
-    <div class="wrapper">
-        <#list full?values[0].tags as tag>
-            <span class="block-tag-section">
-                <@buildBlockTagSection tag tag?index/>
-            </span>
-        </#list>
-    </div>
+    <@apiBuilder.buildApiDiff/>
 </div>
 </body>
 </html>
-
-<#macro buildBlockTagSection tag index>
-    <div class="tag-section left">
-        <@leftBuilder.buildLeftBlockTag tag index/>
-    </div>
-
-    <div class="tag-section right">
-        <@rightBuilder.buildRightBlockTag tag index/>
-    </div>
-</#macro>
-

@@ -25,7 +25,7 @@ body {
     color: var(--dark-color);
 }
 
-.wrapper {
+.api-wrapper {
     width: 100%;
     margin: 0 auto;
     padding: 0 auto;
@@ -98,7 +98,7 @@ body {
     background-color: var(--lite-dark-color);
 }
 
-.differ-ui .wrapper .removed {
+.differ-ui .api-wrapper .removed {
     text-decoration: line-through;
     /*background-color: var(--removed-color);*/
 }

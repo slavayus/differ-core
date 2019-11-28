@@ -4,6 +4,8 @@ import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Service
 import java.io.File
 import java.util.*
+import java.util.function.Supplier
+import java.util.stream.Stream
 import javax.annotation.PostConstruct
 
 @Service
@@ -39,5 +41,12 @@ class VersionServiceImpl(
         } else {
             null
         }
+    }
+
+    override fun getVersionFile(version: String): File? {
+        return Arrays.stream(jversions.listFiles())
+            .filter { it.name.removeSuffix(".json").startsWith(version) }
+            .findFirst()
+            .orElseGet { null }
     }
 }
