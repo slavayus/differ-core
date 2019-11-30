@@ -1,5 +1,6 @@
 package com.differ.differcore.service
 
+import com.differ.differcore.models.Difference
 import com.differ.differcore.utils.*
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -8,7 +9,6 @@ import com.google.common.collect.Maps
 import org.springframework.stereotype.Service
 import java.io.File
 import java.util.*
-import javax.annotation.PostConstruct
 import kotlin.math.absoluteValue
 
 
@@ -18,18 +18,25 @@ class DiffServiceImpl(
     private val versionService: VersionService
 ) : DiffService {
     private val jsonKeySeparator = "."
-    private lateinit var difference: MapDifference<String, Any>
     private val type = object : TypeReference<Map<String, Any>>() {}
 
-    @PostConstruct
-    private fun startDifference() {
+    override fun difference(): Difference {
         val penultimate = versionService.getPenultimateVersionFile()
         val last = versionService.getLastVersionFile()
 
-        difference(penultimate, last)
+        val difference = difference(penultimate, last)
+        return Difference(fullDiff(difference), onlyOnLeft(difference), onlyOnRight(difference))
     }
 
-    private fun difference(penultimate: File?, last: File?) {
+    override fun difference(penultimate: String, last: String): Difference {
+        val penultimateFile = versionService.getVersionFile(penultimate) ?: versionService.getPenultimateVersionFile()
+        val lastFile = versionService.getVersionFile(last) ?: versionService.getLastVersionFile()
+
+        val difference = difference(penultimateFile, lastFile)
+        return Difference(fullDiff(difference), onlyOnLeft(difference), onlyOnRight(difference))
+    }
+
+    private fun difference(penultimate: File?, last: File?): MapDifference<String, Any?> {
         val leftFlatMap = flattenMap(penultimate, type)
         var rightFlatMap = flattenMap(last, type)
 
@@ -37,15 +44,10 @@ class DiffServiceImpl(
             rightFlatMap = leftFlatMap
         }
 
-        this.difference = Maps.difference(leftFlatMap, rightFlatMap)
+        val difference = Maps.difference(leftFlatMap, rightFlatMap)
 
         writeDifferenceToFile(difference)
-    }
-
-    override fun difference(penultimate: String, last: String) {
-        val penultimateFile = versionService.getVersionFile(penultimate) ?: versionService.getPenultimateVersionFile()
-        val lastFile = versionService.getVersionFile(last) ?: versionService.getLastVersionFile()
-        difference(penultimateFile, lastFile)
+        return difference
     }
 
     private fun flattenMap(file: File?, type: TypeReference<Map<String, Any>>) =
@@ -53,7 +55,7 @@ class DiffServiceImpl(
             ?: mutableMapOf()
 
 
-    private fun writeDifferenceToFile(difference: MapDifference<String, Any>) {
+    private fun writeDifferenceToFile(difference: MapDifference<String, Any?>) {
         var outString = ""
         outString += "Entries only on left\n--------------------------\n"
         difference.entriesOnlyOnLeft().forEach { (key, value) -> outString += "$key: $value\n" }
@@ -71,9 +73,9 @@ class DiffServiceImpl(
     }
 
 
-    override fun fullDiff(): MutableMap<String, Any?> {
+    private fun fullDiff(difference: MapDifference<String, Any?>): MutableMap<String, Any?> {
         return expandToMapObjects(
-            mutableMapOf<String, Any>().apply {
+            mutableMapOf<String, Any?>().apply {
                 putAll(difference.entriesOnlyOnLeft())
                 putAll(difference.entriesOnlyOnRight())
                 putAll(difference.entriesInCommon())
@@ -82,20 +84,11 @@ class DiffServiceImpl(
         )
     }
 
-    override fun entriesOnlyOnLeft() =
-        expandToMapObjects(mutableMapOf<String, Any>().apply {
-            putAll(difference.entriesOnlyOnLeft())
-        }.toSortedMap())
+    private fun onlyOnLeft(difference: MapDifference<String, Any?>) =
+        expandToMapObjects(difference.entriesOnlyOnLeft().toSortedMap())
 
-    override fun entriesOnlyOnRight() =
-        expandToMapObjects(mutableMapOf<String, Any>().apply {
-            putAll(difference.entriesOnlyOnRight())
-        }.toSortedMap())
-
-    fun entriesInCommon() =
-        expandToMapObjects(mutableMapOf<String, Any>().apply {
-            putAll(difference.entriesInCommon())
-        }.toSortedMap())
+    private fun onlyOnRight(difference: MapDifference<String, Any?>) =
+        expandToMapObjects(difference.entriesOnlyOnRight().toSortedMap())
 
     override fun expandToMapObjects(unionData: MutableMap<String, Any>) =
         mutableMapOf<String, Any?>().apply {

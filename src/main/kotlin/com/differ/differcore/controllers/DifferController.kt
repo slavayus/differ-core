@@ -1,5 +1,6 @@
 package com.differ.differcore.controllers
 
+import com.differ.differcore.models.Difference
 import com.differ.differcore.render.Renderer
 import com.differ.differcore.service.DiffService
 import com.differ.differcore.service.VersionService
@@ -23,7 +24,8 @@ class DifferController(
 
     @GetMapping
     fun getDiffer(model: Model): String {
-        populateModel(model)
+        val difference = diffService.difference()
+        populateModel(model, difference)
         return "template"
     }
 
@@ -33,15 +35,15 @@ class DifferController(
         @RequestParam(value = "left") left: String,
         @RequestParam(value = "right") right: String
     ): String {
-        diffService.difference(left, right)
-        populateModel(model)
+        val difference = diffService.difference(left, right)
+        populateModel(model, difference)
         return "apiBuilder"
     }
 
-    private fun populateModel(model: Model) {
-        model["full"] = diffService.fullDiff()
-        model["left"] = diffService.entriesOnlyOnLeft()
-        model["right"] = diffService.entriesOnlyOnRight()
+    private fun populateModel(model: Model, difference: Difference) {
+        model["full"] = difference.full
+        model["left"] = difference.onlyOnLeft
+        model["right"] = difference.onlyOnRight
         model["versions"] = versionService.getAllVersions()
         model["leftRenderer"] = leftRenderer
         model["rightRenderer"] = rightRenderer
