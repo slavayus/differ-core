@@ -22,5 +22,5 @@ abstract class Renderer {
 
     abstract fun shouldRenderMethod(tag: String, content: HashAdapter?): Boolean
 
-    abstract fun versionSelected(versions: List<String>, version: String): Boolean
+    abstract fun versionSelected(versions: List<String>, urlVersion: String?): String?
 }

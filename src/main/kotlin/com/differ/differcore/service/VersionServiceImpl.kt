@@ -4,8 +4,6 @@ import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Service
 import java.io.File
 import java.util.*
-import java.util.function.Supplier
-import java.util.stream.Stream
 import javax.annotation.PostConstruct
 
 @Service
@@ -40,7 +38,7 @@ class VersionServiceImpl(
     }
 
     override fun getVersionFile(version: String): File? =
-        resourceLoader.getResource("$LOCATION${File.separator}$version.json").file.takeIf { it.exists() }
+        resourceLoader.getResource("$LOCATION${File.separator}$version.json").takeIf { it.exists() }?.file
 
     companion object {
         private const val LOCATION = "classpath:jversions"

@@ -25,8 +25,12 @@ class DifferController(
 
 
     @GetMapping
-    fun getDiffer(model: Model): String {
-        val difference = diffService.difference()
+    fun getDiffer(
+        model: Model,
+        @RequestParam(value = "left", required = false) left: String?,
+        @RequestParam(value = "right", required = false) right: String?
+    ): String {
+        val difference = diffService.difference(left, right)
         processDiffServiceResponse(difference, model)
         return "template"
     }

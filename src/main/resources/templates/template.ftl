@@ -27,7 +27,8 @@
                     <label>Select version
                         <select class="version-select" onchange="versionChanged()">
                             <#list versions as version>
-                                <option <#if leftRenderer.versionSelected(versions, version)>selected</#if>>${version}</option>
+                                <#assign selectedVersion = leftRenderer.versionSelected(versions, RequestParameters.left)!""/>
+                                <option <#if version == selectedVersion>selected</#if>>${version}</option>
                             </#list>
                         </select>
                     </label>
@@ -37,7 +38,8 @@
                     <label>Select version
                         <select class="version-select" onchange="versionChanged()">
                             <#list versions as version>
-                                <option <#if rightRenderer.versionSelected(versions, version)>selected</#if>>${version}</option>
+                                <#assign selectedVersion = rightRenderer.versionSelected(versions, RequestParameters.right)!""/>
+                                <option <#if version == selectedVersion>selected</#if>>${version}</option>
                             </#list>
                         </select>
                     </label>

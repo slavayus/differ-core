@@ -19,5 +19,6 @@ function versionChanged() {
     let rightVersion = $(selectVersion[1]).text();
     $.get(BASE_URL + "version", {left: leftVersion, right: rightVersion}).done(function (data) {
         $(".api-wrapper").replaceWith(data);
+        history.pushState({}, null, "?left=" + leftVersion + "&right=" + rightVersion);
     })
 }

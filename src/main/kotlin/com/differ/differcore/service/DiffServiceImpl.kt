@@ -21,26 +21,12 @@ class DiffServiceImpl(
     private val jsonKeySeparator = "."
     private val type = object : TypeReference<Map<String, Any>>() {}
 
-    override fun difference(): Either<Difference> {
-        val last = versionService.getLastVersionFile()
-        val penultimate = versionService.getPenultimateVersionFile() ?: last
+    override fun difference(penultimate: String?, last: String?): Either<Difference> {
+        val penultimateFile = provideVersionFile(penultimate) { versionService.getPenultimateVersionFile() }
+        val lastFile = provideVersionFile(penultimate) { versionService.getLastVersionFile() }
 
         return when {
-            Objects.isNull(penultimate) && Objects.isNull(last) -> Either.Error("No version files was found ")
-            Objects.isNull(penultimate) -> Either.Error("No penultimate version file was found ")
-            Objects.isNull(last) -> Either.Error("No last version file was found")
-            else -> {
-                val difference = difference(penultimate!!, last!!)
-                Either.Success(Difference(fullDiff(difference), onlyOnLeft(difference), onlyOnRight(difference)))
-            }
-        }
-    }
-
-    override fun difference(penultimate: String, last: String): Either<Difference> {
-        val penultimateFile = versionService.getVersionFile(penultimate)
-        val lastFile = versionService.getVersionFile(last)
-
-        return when {
+            Objects.isNull(penultimateFile) && Objects.isNull(lastFile) -> Either.Error("No version files was found ")
             Objects.isNull(penultimateFile) -> Either.Error("No version $penultimate file found")
             Objects.isNull(lastFile) -> Either.Error("No version $last file found")
             else -> {
@@ -49,6 +35,9 @@ class DiffServiceImpl(
             }
         }
     }
+
+    private fun provideVersionFile(version: String?, orElse: () -> File?): File? =
+        takeIf { version != null }?.let { versionService.getVersionFile(version!!) } ?: orElse()
 
     private fun difference(penultimate: File, last: File): MapDifference<String, Any?> {
         val leftFlatMap = flattenMap(penultimate, type)

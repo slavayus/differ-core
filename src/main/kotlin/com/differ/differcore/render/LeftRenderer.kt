@@ -3,6 +3,7 @@ package com.differ.differcore.render
 import com.google.common.collect.MapDifference
 import freemarker.ext.beans.HashAdapter
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 class LeftRenderer : Renderer() {
@@ -23,6 +24,22 @@ class LeftRenderer : Renderer() {
             }
     }
 
-    override fun versionSelected(versions: List<String>, version: String): Boolean =
-        (versions.size > 1 && versions[1] == version) || (versions.isNotEmpty() && versions.first() == version)
+    override fun versionSelected(versions: List<String>, urlVersion: String?): String? =
+        if (Objects.isNull(urlVersion)) {
+            if (versions.size > 1) {
+                versions[1]
+            } else {
+                if (versions.isNotEmpty()) {
+                    versions.first()
+                } else {
+                    null
+                }
+            }
+        } else {
+            versions.stream()
+                .filter { it == urlVersion }
+                .findFirst()
+                .orElseGet { null }
+        }
+
 }
