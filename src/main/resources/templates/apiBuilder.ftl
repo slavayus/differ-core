@@ -5,12 +5,20 @@
 
 <#macro buildApiDiff>
     <div class="api-wrapper">
-        <#list full?values[0].tags as tag>
-            <span class="block-tag-section">
+        <#if errorMessage??>
+            <@buildApiVersionError/>
+        <#else>
+            <@buildApiList/>
+        </#if>
+    </div>
+</#macro>
+
+<#macro buildApiList>
+    <#list full?values[0].tags as tag>
+        <span class="block-tag-section">
                 <@buildBlockTagSection tag tag?index/>
             </span>
-        </#list>
-    </div>
+    </#list>
 </#macro>
 
 <#macro buildBlockTagSection tag index>
@@ -20,6 +28,14 @@
 
     <div class="tag-section right">
         <@rightBuilder.buildRightBlockTag tag index/>
+    </div>
+</#macro>
+
+<#macro buildApiVersionError>
+    <div class="api-wrapper">
+        <div class="error-message">
+            <label>An error occurred while getting version file: ${errorMessage}</label>
+        </div>
     </div>
 </#macro>
 

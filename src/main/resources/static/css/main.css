@@ -257,3 +257,7 @@ body {
 .differ-ui .version-section {
     text-align: center;
 }
+
+.differ-ui .api-wrapper .error-message {
+    text-align: center;
+}

@@ -1,6 +1,7 @@
 package com.differ.differcore.controllers
 
 import com.differ.differcore.models.Difference
+import com.differ.differcore.models.Either
 import com.differ.differcore.render.Renderer
 import com.differ.differcore.service.DiffService
 import com.differ.differcore.service.VersionService
@@ -22,10 +23,11 @@ class DifferController(
     @Qualifier("rightRenderer") private val rightRenderer: Renderer
 ) {
 
+
     @GetMapping
     fun getDiffer(model: Model): String {
         val difference = diffService.difference()
-        populateModel(model, difference)
+        processDiffServiceResponse(difference, model)
         return "template"
     }
 
@@ -36,17 +38,34 @@ class DifferController(
         @RequestParam(value = "right") right: String
     ): String {
         val difference = diffService.difference(left, right)
-        populateModel(model, difference)
+        processDiffServiceResponse(difference, model)
         return "apiBuilder"
     }
 
-    private fun populateModel(model: Model, difference: Difference) {
+
+    private fun processDiffServiceResponse(difference: Either<Difference>, model: Model) {
+        when (difference) {
+            is Either.Success -> {
+                populateSuccessModel(model, difference.value)
+            }
+            is Either.Error -> {
+                populateErrorModel(model, difference.message)
+            }
+        }
+    }
+
+
+    private fun populateSuccessModel(model: Model, difference: Difference) {
         model["full"] = difference.full
         model["left"] = difference.onlyOnLeft
         model["right"] = difference.onlyOnRight
         model["versions"] = versionService.getAllVersions()
         model["leftRenderer"] = leftRenderer
         model["rightRenderer"] = rightRenderer
+    }
+
+    private fun populateErrorModel(model: Model, message: String) {
+        model["errorMessage"] = message
     }
 
     companion object {

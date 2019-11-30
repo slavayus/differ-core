@@ -1,6 +1,7 @@
 package com.differ.differcore.service
 
 import com.differ.differcore.models.Difference
+import com.differ.differcore.models.Either
 import com.differ.differcore.utils.*
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -20,23 +21,35 @@ class DiffServiceImpl(
     private val jsonKeySeparator = "."
     private val type = object : TypeReference<Map<String, Any>>() {}
 
-    override fun difference(): Difference {
-        val penultimate = versionService.getPenultimateVersionFile()
+    override fun difference(): Either<Difference> {
         val last = versionService.getLastVersionFile()
+        val penultimate = versionService.getPenultimateVersionFile() ?: last
 
-        val difference = difference(penultimate, last)
-        return Difference(fullDiff(difference), onlyOnLeft(difference), onlyOnRight(difference))
+        return when {
+            Objects.isNull(penultimate) -> Either.Error("No penultimate version files found ")
+            Objects.isNull(last) -> Either.Error("No last version files found")
+            else -> {
+                val difference = difference(penultimate!!, last!!)
+                Either.Success(Difference(fullDiff(difference), onlyOnLeft(difference), onlyOnRight(difference)))
+            }
+        }
     }
 
-    override fun difference(penultimate: String, last: String): Difference {
-        val penultimateFile = versionService.getVersionFile(penultimate) ?: versionService.getPenultimateVersionFile()
-        val lastFile = versionService.getVersionFile(last) ?: versionService.getLastVersionFile()
+    override fun difference(penultimate: String, last: String): Either<Difference> {
+        val penultimateFile = versionService.getVersionFile(penultimate)
+        val lastFile = versionService.getVersionFile(last)
 
-        val difference = difference(penultimateFile, lastFile)
-        return Difference(fullDiff(difference), onlyOnLeft(difference), onlyOnRight(difference))
+        return when {
+            Objects.isNull(penultimateFile) -> Either.Error("No version $penultimate file found")
+            Objects.isNull(lastFile) -> Either.Error("No version $last file found")
+            else -> {
+                val difference = difference(penultimateFile!!, lastFile!!)
+                Either.Success(Difference(fullDiff(difference), onlyOnLeft(difference), onlyOnRight(difference)))
+            }
+        }
     }
 
-    private fun difference(penultimate: File?, last: File?): MapDifference<String, Any?> {
+    private fun difference(penultimate: File, last: File): MapDifference<String, Any?> {
         val leftFlatMap = flattenMap(penultimate, type)
         var rightFlatMap = flattenMap(last, type)
 
@@ -50,9 +63,8 @@ class DiffServiceImpl(
         return difference
     }
 
-    private fun flattenMap(file: File?, type: TypeReference<Map<String, Any>>) =
-        file?.let { objectMapper.readValue<Map<String, Any>>(it, type).flatten(jsonKeySeparator) }
-            ?: mutableMapOf()
+    private fun flattenMap(file: File, type: TypeReference<Map<String, Any>>) =
+        file.let { objectMapper.readValue<Map<String, Any>>(it, type).flatten(jsonKeySeparator) }
 
 
     private fun writeDifferenceToFile(difference: MapDifference<String, Any?>) {

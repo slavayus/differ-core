@@ -17,7 +17,7 @@ class VersionServiceImpl(
 
     @PostConstruct
     fun init() {
-        jversions = resourceLoader.getResource("classpath:jversions").file
+        jversions = resourceLoader.getResource(LOCATION).file
     }
 
     override fun getAllVersions(): List<String> {
@@ -36,17 +36,13 @@ class VersionServiceImpl(
 
     override fun getPenultimateVersionFile(): File? {
         val sortedVersions = jversions.listFiles()?.sorted()
-        return if (sortedVersions != null && sortedVersions.size > 1) {
-            sortedVersions[sortedVersions.size - 2]
-        } else {
-            null
-        }
+        return takeIf { sortedVersions != null && sortedVersions.size > 1 }?.let { sortedVersions!![sortedVersions.size - 2] }
     }
 
-    override fun getVersionFile(version: String): File? {
-        return Arrays.stream(jversions.listFiles())
-            .filter { it.name.removeSuffix(".json").startsWith(version) }
-            .findFirst()
-            .orElseGet { null }
+    override fun getVersionFile(version: String): File? =
+        resourceLoader.getResource("${File.separator}$version.json").file.takeIf { it.exists() }
+
+    companion object {
+        private const val LOCATION = "classpath:jversions"
     }
 }
