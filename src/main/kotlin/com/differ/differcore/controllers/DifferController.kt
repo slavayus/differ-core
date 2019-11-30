@@ -26,7 +26,6 @@ class DifferController(
         model["left"] = diffService.entriesOnlyOnLeft()
         model["right"] = diffService.entriesOnlyOnRight()
         model["versions"] = versionService.getAllVersions()
-//        model["common"] = diffService.entriesInCommon()
         return "template"
     }
 
@@ -41,7 +40,6 @@ class DifferController(
         model["full"] = diffService.fullDiff()
         model["left"] = diffService.entriesOnlyOnLeft()
         model["right"] = diffService.entriesOnlyOnRight()
-        model["versions"] = versionService.getAllVersions()
         return "apiBuilder"
     }
 

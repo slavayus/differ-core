@@ -13,20 +13,21 @@ class LeftRenderUtils {
             return (content["tags"] as List<*>)
                 .stream()
                 .filter { it != null }
-                .map {
+                .anyMatch {
                     when (it) {
                         is MapDifference.ValueDifference<*> -> tag == it.leftValue()
                         is String -> it == tag
                         else -> false
                     }
                 }
-                .findAny()
-                .get()
         }
 
 
         fun containsMethod(right: Map<String, Any?>, path: String, method: String): Boolean {
-            val methods = ((right.values.first() as Map<*, *>)["paths"] as Map<*, *>)[path]
+            var methods: Any? = null
+            if (right.values.isNotEmpty()) {
+                methods = ((right.values.first() as Map<*, *>)["paths"] as Map<*, *>)[path]
+            }
             return methods != null && (methods as Map<*, *>).containsKey(method)
         }
 

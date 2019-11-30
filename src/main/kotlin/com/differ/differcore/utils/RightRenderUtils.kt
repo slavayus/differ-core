@@ -13,15 +13,13 @@ class RightRenderUtils {
             return (content["tags"] as List<*>)
                 .stream()
                 .filter { it != null }
-                .map {
+                .anyMatch {
                     when (it) {
                         is MapDifference.ValueDifference<*> -> tag == it.rightValue()
                         is String -> it == tag
                         else -> false
                     }
                 }
-                .findAny()
-                .get()
         }
 
         fun attributeValue(attribute: Map<*, *>, value: String) =
@@ -33,7 +31,10 @@ class RightRenderUtils {
             }
 
         fun containsMethod(left: Map<String, Any?>, path: String, method: String): Boolean {
-            val methods = ((left.values.first() as Map<*, *>)["paths"] as Map<*, *>)[path]
+            var methods: Any? = null
+            if (left.values.isNotEmpty()) {
+                methods = ((left.values.first() as Map<*, *>)["paths"] as Map<*, *>)[path]
+            }
             return methods != null && (methods as Map<*, *>).containsKey(method)
         }
     }
