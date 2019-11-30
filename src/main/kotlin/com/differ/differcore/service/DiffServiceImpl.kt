@@ -23,7 +23,7 @@ class DiffServiceImpl(
 
     override fun difference(penultimate: String?, last: String?): Either<Difference> {
         val penultimateFile = provideVersionFile(penultimate) { versionService.getPenultimateVersionFile() }
-        val lastFile = provideVersionFile(penultimate) { versionService.getLastVersionFile() }
+        val lastFile = provideVersionFile(last) { versionService.getLastVersionFile() }
 
         return when {
             Objects.isNull(penultimateFile) && Objects.isNull(lastFile) -> Either.Error("No version files was found ")
@@ -41,11 +41,7 @@ class DiffServiceImpl(
 
     private fun difference(penultimate: File, last: File): MapDifference<String, Any?> {
         val leftFlatMap = flattenMap(penultimate, type)
-        var rightFlatMap = flattenMap(last, type)
-
-        if (rightFlatMap.isEmpty() && leftFlatMap.isNotEmpty()) {
-            rightFlatMap = leftFlatMap
-        }
+        val rightFlatMap = flattenMap(last, type)
 
         val difference = Maps.difference(leftFlatMap, rightFlatMap)
 
