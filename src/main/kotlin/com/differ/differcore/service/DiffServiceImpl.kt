@@ -26,8 +26,9 @@ class DiffServiceImpl(
         val penultimate = versionService.getPenultimateVersionFile() ?: last
 
         return when {
-            Objects.isNull(penultimate) -> Either.Error("No penultimate version files found ")
-            Objects.isNull(last) -> Either.Error("No last version files found")
+            Objects.isNull(penultimate) && Objects.isNull(last) -> Either.Error("No version files was found ")
+            Objects.isNull(penultimate) -> Either.Error("No penultimate version file was found ")
+            Objects.isNull(last) -> Either.Error("No last version file was found")
             else -> {
                 val difference = difference(penultimate!!, last!!)
                 Either.Success(Difference(fullDiff(difference), onlyOnLeft(difference), onlyOnRight(difference)))

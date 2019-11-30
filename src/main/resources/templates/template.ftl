@@ -22,25 +22,27 @@
 <div class="differ-ui">
     <div class="version-section">
         <span class="block-tag-section">
-            <span class="tag-section version left">
-                <label>Select version
-                    <select class="version-select" onchange="versionChanged()">
-                        <#list versions as version>
-                            <option <#if version?index==versions?size-1>selected</#if>>${version}</option>
-                        </#list>
-                    </select>
-                </label>
-            </span>
+            <#if versions??>
+                <span class="tag-section version left">
+                    <label>Select version
+                        <select class="version-select" onchange="versionChanged()">
+                            <#list versions as version>
+                                <option <#if leftRenderer.versionSelected(versions, version)>selected</#if>>${version}</option>
+                            </#list>
+                        </select>
+                    </label>
+                </span>
 
-            <span class="tag-section version right">
-                <label>Select version
-                    <select class="version-select" onchange="versionChanged()">
-                        <#list versions as version>
-                            <option <#if version?index==versions?size>selected</#if>>${version}</option>
-                        </#list>
-                    </select>
-                </label>
-            </span>
+                <span class="tag-section version right">
+                    <label>Select version
+                        <select class="version-select" onchange="versionChanged()">
+                            <#list versions as version>
+                                <option <#if rightRenderer.versionSelected(versions, version)>selected</#if>>${version}</option>
+                            </#list>
+                        </select>
+                    </label>
+                </span>
+            </#if>
         </span>
     </div>
 

@@ -22,4 +22,8 @@ class RightRenderer : Renderer() {
                 }
             }
     }
+
+    override fun versionSelected(versions: List<String>, version: String): Boolean =
+        versions.isNotEmpty() && versions.first() == version
+
 }

@@ -40,7 +40,7 @@ class VersionServiceImpl(
     }
 
     override fun getVersionFile(version: String): File? =
-        resourceLoader.getResource("${File.separator}$version.json").file.takeIf { it.exists() }
+        resourceLoader.getResource("$LOCATION${File.separator}$version.json").file.takeIf { it.exists() }
 
     companion object {
         private const val LOCATION = "classpath:jversions"
