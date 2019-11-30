@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <#import "head.ftl" as head />
 <#import "apiBuilder.ftl" as apiBuilder />
+<#import "spring.ftl" as spring />
 <html lang="en">
 <head>
     <meta charset="UTF-8">

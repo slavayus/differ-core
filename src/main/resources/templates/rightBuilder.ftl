@@ -1,10 +1,8 @@
 <#import "common.ftl" as common>
 
 <#macro buildRightBlockTag tag index>
-    <#assign RenderUtils=statics['com.differ.differcore.utils.RightRenderUtils'].Companion>
-
-    <#assign tagName=RenderUtils.attributeValue(tag, "name")>
-    <#assign tagDescription=RenderUtils.attributeValue(tag, "description")>
+    <#assign tagName=rightRenderer.attributeValue(tag, "name")>
+    <#assign tagDescription=rightRenderer.attributeValue(tag, "description")>
 
     <h4 class="block-tag">
         <a class="nostyle" href="#/${tagName}"><span>${tagName}</span></a>
@@ -16,16 +14,16 @@
         <#list full?values[0].paths as path, methods>
             <#if methods?has_content>
                 <#list methods as method, content>
-                    <#if RenderUtils.containsMethod(left, path, method)>
+                    <#if rightRenderer.containsMethod(left, path, method)>
                         <#if right?values[0].paths[path][method]??>
                             <#assign leftContent=right?values[0].paths[path][method]/>
-                            <#if RenderUtils.shouldRenderMethod(tagName, leftContent)>
+                            <#if rightRenderer.shouldRenderMethod(tagName, leftContent)>
                                 <@common.renderMethod method path leftContent.summary "" ""/>
                             </#if>
                         </#if>
                     <#else>
-                        <#if RenderUtils.shouldRenderMethod(tagName, content)>
-                            <#assign contentSummary=RenderUtils.attributeValue(content, "summary")>
+                        <#if rightRenderer.shouldRenderMethod(tagName, content)>
+                            <#assign contentSummary=rightRenderer.attributeValue(content, "summary")>
                             <@common.renderMethod method path contentSummary ""/>
                         </#if>
                     </#if>

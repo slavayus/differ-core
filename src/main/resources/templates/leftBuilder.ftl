@@ -1,7 +1,6 @@
 <#import "common.ftl" as common>
 
 <#macro buildLeftBlockTag tag index>
-    <#assign RenderUtils=statics['com.differ.differcore.utils.LeftRenderUtils'].Companion>
     <h4 class="block-tag">
 
         <#if tag.name?is_hash><#assign tagName=tag.name.leftValue()><#else><#assign tagName=tag.name!""></#if>
@@ -26,15 +25,15 @@
         <#list full?values[0].paths as path, methods>
             <#if methods?has_content>
                 <#list methods as method, content>
-                    <#if RenderUtils.containsMethod(right, path, method)>
+                    <#if leftRenderer.containsMethod(right, path, method)>
                         <#if left?values[0].paths[path][method]??>
                             <#assign leftContent=left?values[0].paths[path][method]/>
-                            <#if RenderUtils.shouldRenderMethod(tagName, leftContent)>
+                            <#if leftRenderer.shouldRenderMethod(tagName, leftContent)>
                                 <@common.renderMethod method path leftContent.summary "removed" "removed"/>
                             </#if>
                         </#if>
                     <#else >
-                        <#if RenderUtils.shouldRenderMethod(tagName, content)>
+                        <#if leftRenderer.shouldRenderMethod(tagName, content)>
                             <#if content.summary?is_hash>
                                 <@common.renderMethod method path content.summary.leftValue() "" "removed"/>
                             <#else>
