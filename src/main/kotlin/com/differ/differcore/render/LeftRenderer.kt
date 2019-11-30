@@ -24,5 +24,5 @@ class LeftRenderer : Renderer() {
     }
 
     override fun versionSelected(versions: List<String>, version: String): Boolean =
-        versions.size > 1 && versions[versions.size - 1] == version
+        (versions.size > 1 && versions[1] == version) || (versions.isNotEmpty() && versions.first() == version)
 }
