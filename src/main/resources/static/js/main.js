@@ -5,6 +5,11 @@ $(function () {
         $(this).parents(".block-tag-section").find(".block-content").toggle();
         setupExpandOperationSvgIcon(this);
     });
+
+    $(".differ-ui").on("click", ".opblock-summary", function () {
+        const classes = $(this).attr('class').split(" ").map(value => "." + value).join('');
+        $(this).parents(".block-tag-section").find(classes).next().toggle();
+    })
 });
 
 function setupExpandOperationSvgIcon(element) {

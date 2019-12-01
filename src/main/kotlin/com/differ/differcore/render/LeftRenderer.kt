@@ -42,4 +42,27 @@ class LeftRenderer : Renderer() {
                 .orElseGet { null }
         }
 
+    override fun isFullyRemovedMethod(
+        left: Map<String, Any?>,
+        right: Map<String, Any?>,
+        path: String,
+        method: String
+    ): Boolean {
+        val rightContainsPath =
+            right.values.isNotEmpty() && ((right.values.first() as Map<*, *>)["paths"] as Map<*, *>)[path] != null
+        val leftContainsPath =
+            left.values.isNotEmpty() && ((left.values.first() as Map<*, *>)["paths"] as Map<*, *>)[path] != null
+        val leftContainMethod =
+            leftContainsPath && (((left.values.first() as Map<*, *>)["paths"] as Map<*, *>)[path] as Map<*, *>)[method] != null
+        return (!rightContainsPath && leftContainsPath) || leftContainMethod
+    }
+
+    override fun attributeValue(attribute: Map<*, *>, value: String) =
+        with(attribute[value]) {
+            when (this) {
+                is MapDifference.ValueDifference<*> -> leftValue()
+                else -> this
+            }
+        }
+
 }

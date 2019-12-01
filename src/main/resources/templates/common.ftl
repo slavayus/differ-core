@@ -1,13 +1,9 @@
-<#macro renderMethod method path content removedMethod removedDescription="">
-    <span>
-        <div class="opblock opblock-${method}">
-            <div class="opblock-summary">
-                <span class="opblock-summary-method ${removedMethod}">${method}</span>
-                <span class="opblock-summary-path ${removedMethod}">${path}</span>
-                <div class="opblock-summary-description ${removedDescription}">${content}</div>
-            </div>
-        </div>
-    </span>
+<#macro renderMethodHeader method path content removedMethod removedDescription="">
+    <div class="opblock-summary ${path?replace('/', '_')}_${method}">
+        <span class="opblock-summary-method ${removedMethod}">${method}</span>
+        <span class="opblock-summary-path ${removedMethod}">${path}</span>
+        <div class="opblock-summary-description ${removedDescription}">${content}</div>
+    </div>
 </#macro>
 
 <#macro buildExpandButton>

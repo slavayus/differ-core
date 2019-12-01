@@ -38,4 +38,21 @@ class RightRenderer : Renderer() {
                 .orElseGet { null }
         }
 
+    override fun isFullyRemovedMethod(
+        left: Map<String, Any?>,
+        right: Map<String, Any?>,
+        path: String,
+        method: String
+    ): Boolean {
+        throw UnsupportedOperationException()
+    }
+
+    override fun attributeValue(attribute: Map<*, *>, value: String) =
+        with(attribute[value]) {
+            when (this) {
+                is MapDifference.ValueDifference<*> -> rightValue()
+                else -> this
+            }
+        }
+
 }

@@ -261,3 +261,67 @@ body {
 .differ-ui .api-wrapper .error-message {
     text-align: center;
 }
+
+.differ-ui .tag-section .opblock-content {
+    display: none;
+}
+
+.differ-ui .opblock-section-header {
+    background: var(--smoke-white);
+    padding: 15px;
+}
+
+.differ-ui .opblock-section-parameters {
+    padding: 15px;
+}
+
+.differ-ui .parameter__name.required:after {
+    font-size: 11px;
+    position: relative;
+    top: -6px;
+    content: "* required";
+    color: rgba(255, 0, 0, .6);
+}
+
+.differ-ui table.parameters {
+    width: 100%;
+    border-spacing: 0;
+}
+
+.differ-ui table.parameters thead tr th {
+    font-size: 14px;
+    padding: 12px 0 0;
+    font-weight: 100;
+    text-align: left;
+    border-bottom: 1px solid rgba(59, 65, 81, .2);
+}
+
+.differ-ui table.parameters tbody tr td {
+    padding: 10px 0 0;
+    vertical-align: top;
+}
+
+.differ-ui table.parameters .parameter__in {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 600;
+    color: gray;
+}
+
+.differ-ui table.parameters .parameter__type {
+    font-size: 12px;
+    padding: 5px 0;
+    font-weight: 600;
+}
+
+.differ-ui table.parameters tbody tr td:first-of-type {
+    max-width: 20%;
+    min-width: 6em;
+    padding: 10px 0;
+}
+
+.differ-ui .opblock-section-parameters .opblock-description-wrapper {
+    font-size: 12px;
+    margin: 0 0 5px;
+    padding: 0 20px;
+}
