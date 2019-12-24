@@ -47,20 +47,22 @@ class MapTransformerServiceImpl : MapTransformerService {
         val key = keyList[1]
         val value = jsonMap[key]
         val secondKey = secondKey(keyList)
-        var leftKey = newKey(keyList, 2)
-        var tmpMap = mutableMapOf<String, Any?>()
+        var remainKey = joinKeyList(keyList, 2)
+        var deeperMap = mutableMapOf<String, Any?>()
         when {
-            value is MutableMap<*, *> -> tmpMap = value.asMutableMapOfType()!!
+            value is MutableMap<*, *> -> deeperMap = value.asMutableMapOfType()!!
 
             keyList.size <= 3 && secondKey.isNegativeNumber() -> {
-                jsonMap[key] = populateList(if (value is MutableList<*>) value else mutableListOf<Any>(), entry.value)
+                val list = if (value is MutableList<*>) value else mutableListOf<Any>()
+                populateList(list, entry.value)
+                jsonMap[key] = list
                 return
             }
 
             secondKey.isNegativeNumber() -> {
-                jsonMap.putIfAbsent(key, mutableListOf(tmpMap))
-                tmpMap = addToListIfAbsent(jsonMap[key] as MutableList<*>, secondKey)
-                leftKey = newKey(keyList, 3)
+                jsonMap.putIfAbsent(key, mutableListOf(deeperMap))
+                deeperMap = getExistingMapOrCreateNew(jsonMap[key] as MutableList<*>, secondKey)
+                remainKey = joinKeyList(keyList, 3)
             }
 
             secondKey.isEmpty() -> {
@@ -68,14 +70,15 @@ class MapTransformerServiceImpl : MapTransformerService {
                 return
             }
 
-            else -> jsonMap[key] = tmpMap
+            else -> jsonMap[key] = deeperMap
         }
-        addEntry(AbstractMap.SimpleEntry(leftKey, entry.value), tmpMap)
+        addEntry(AbstractMap.SimpleEntry(remainKey, entry.value), deeperMap)
     }
 
-    private fun addToListIfAbsent(value: MutableList<*>, secondKey: String): MutableMap<String, Any?> =
+    private fun getExistingMapOrCreateNew(value: MutableList<*>, secondKey: String): MutableMap<String, Any?> =
         when {
-            value.size > secondKey.toInt().absoluteValue -> value[secondKey.toInt().absoluteValue] as MutableMap<String, Any?>
+            value.size > secondKey.toInt().absoluteValue ->
+                (value[secondKey.toInt().absoluteValue] as MutableMap<*, *>).asMutableMapOfType()!!
             else -> {
                 val result = mutableMapOf<String, Any?>()
                 populateList(value, result)
@@ -83,9 +86,9 @@ class MapTransformerServiceImpl : MapTransformerService {
             }
         }
 
-    private fun populateList(list: MutableList<*>, value: Any?) = list.apply { asMutableListOfType<Any?>()?.add(value) }
+    private fun populateList(list: MutableList<*>, value: Any?) = list.run { asMutableListOfType<Any?>()?.add(value) }
 
-    private fun newKey(keyList: List<String>, start: Int) =
+    private fun joinKeyList(keyList: List<String>, start: Int) =
         keyList.subList(start).joinToString(JSON_KEY_SEPARATOR, JSON_KEY_SEPARATOR)
 
     private fun secondKey(keyList: List<String>) = takeIf { (keyList.size > 2) }?.let { keyList[2] } ?: ""
