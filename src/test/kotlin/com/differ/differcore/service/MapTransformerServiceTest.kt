@@ -1,24 +1,16 @@
 package com.differ.differcore.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
 import org.mockito.InjectMocks
 import org.mockito.MockitoAnnotations
-import org.junit.jupiter.api.BeforeEach
-import org.mockito.Mock
 
 
-class DiffServiceTest {
-    @Mock
-    private lateinit var objectMapper: ObjectMapper
-
-    @Mock
-    private lateinit var versionService: VersionService
-
+class MapTransformerServiceTest {
     @InjectMocks
-    private lateinit var diffService: DiffServiceImpl
+    private lateinit var mapTransformerService: MapTransformerServiceImpl
 
     @BeforeEach
     fun initMocks() {
@@ -28,7 +20,7 @@ class DiffServiceTest {
     @Test
     fun `just one tag should return map with key value`() {
         mutableMapOf<String, Any>().apply { set(".home", "basic-error-controller") }
-            .let { diffService.expandToMapObjects(it) }
+            .let { mapTransformerService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertAll(
@@ -41,7 +33,7 @@ class DiffServiceTest {
     @Test
     fun `tag with one child should return map with nested map with one item`() {
         mutableMapOf<String, Any>().apply { set(".home.tags", "basic-error-controller") }
-            .let { diffService.expandToMapObjects(it) }
+            .let { mapTransformerService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -58,7 +50,7 @@ class DiffServiceTest {
         mutableMapOf<String, Any>().apply {
             set(".home.tags", "basic-error-controller")
             set(".home.name", "basic-controller")
-        }.let { diffService.expandToMapObjects(it) }
+        }.let { mapTransformerService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -76,7 +68,7 @@ class DiffServiceTest {
     @Test
     fun `tag with one child should return map with nested list with one item`() {
         mutableMapOf<String, Any>().apply { set(".home.tags.-0", "basic-error-controller") }
-            .let { diffService.expandToMapObjects(it) }
+            .let { mapTransformerService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -97,7 +89,7 @@ class DiffServiceTest {
         mutableMapOf<String, Any>().apply {
             set(".home.tags.-0", "basic-error-controller")
             set(".home.tags.-1", "basic-controller")
-        }.let { diffService.expandToMapObjects(it) }
+        }.let { mapTransformerService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -121,7 +113,7 @@ class DiffServiceTest {
         mutableMapOf<String, Any>().apply {
             set(".home.-0.tags", "basic-error-controller")
             set(".home.-1.name", "basic-controller")
-        }.let { diffService.expandToMapObjects(it) }
+        }.let { mapTransformerService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -152,7 +144,7 @@ class DiffServiceTest {
             set(".home.-0.tags", "basic-error-controller")
             set(".home.-1.name", "basic-controller")
             set(".home.-1.name2", "basic2-controller")
-        }.let { diffService.expandToMapObjects(it) }
+        }.let { mapTransformerService.expandToMapObjects(it) }
             .apply { println(this) }
             .let {
                 assertEquals(1, it.size)
@@ -187,7 +179,7 @@ class DiffServiceTest {
         data[".home.tags.-1.name"] = "controller"
         data[".home.paths./.get.tags.-0"] = "controller"
         data[".home.paths./.get.tags.-1"] = "controller1"
-        val expandToJson = diffService.expandToMapObjects(data)
+        val expandToJson = mapTransformerService.expandToMapObjects(data)
         println(expandToJson)
         assertTrue(true)
     }

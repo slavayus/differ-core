@@ -13,6 +13,8 @@ fun String.isInt() = try {
     false
 }
 
+fun String.isNegativeNumber() = isInt() && toInt() <= 0
+
 inline fun <reified T> MutableList<*>.asMutableListOfType(): MutableList<T>? =
     if (all { it is T })
         @Suppress("UNCHECKED_CAST")

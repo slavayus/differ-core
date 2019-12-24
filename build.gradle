@@ -12,7 +12,7 @@ apply plugin: 'com.differ.differcommit.plugins.DifferCommitPlugin'
 project.group 'com.differ'
 project.version '1.0.0'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 13
 
 repositories {
     mavenCentral()
