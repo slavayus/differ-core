@@ -8,7 +8,7 @@ import java.util.stream.Stream
 import kotlin.math.absoluteValue
 
 @Service
-class MapTransformerServiceImpl : MapTransformerService {
+open class MapTransformerServiceImpl : MapTransformerService {
 
     override fun flattenMap(mapToFlatten: Map<String, Any>): Map<String, Any?> =
         mapToFlatten.entries
