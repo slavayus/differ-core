@@ -2,6 +2,7 @@ package com.differ.differcore.service
 
 import com.differ.differcore.models.Difference
 import com.differ.differcore.models.Either
+import com.differ.differcore.utils.on
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.collect.MapDifference
@@ -69,22 +70,18 @@ class DiffServiceImpl(
 
 
     private fun fullDiff(difference: MapDifference<String, Any?>): MutableMap<String, Any?> {
-        return expandToMapObjects(
-            mutableMapOf<String, Any?>().apply {
-                putAll(difference.entriesOnlyOnLeft())
-                putAll(difference.entriesOnlyOnRight())
-                putAll(difference.entriesInCommon())
-                putAll(difference.entriesDiffering())
-            }.toSortedMap()
-        )
+        val flattenMap = on(sortedMapOf<String, Any?>()) {
+            putAll(difference.entriesOnlyOnLeft())
+            putAll(difference.entriesOnlyOnRight())
+            putAll(difference.entriesInCommon())
+            putAll(difference.entriesDiffering())
+        }
+        return mapTransformerService.expandToMapObjects(flattenMap)
     }
 
     private fun onlyOnLeft(difference: MapDifference<String, Any?>) =
-        expandToMapObjects(difference.entriesOnlyOnLeft().toSortedMap())
+        mapTransformerService.expandToMapObjects(difference.entriesOnlyOnLeft().toSortedMap())
 
     private fun onlyOnRight(difference: MapDifference<String, Any?>) =
-        expandToMapObjects(difference.entriesOnlyOnRight().toSortedMap())
-
-    override fun expandToMapObjects(unionData: MutableMap<String, Any>) =
-        mapTransformerService.expandToMapObjects(unionData)
+        mapTransformerService.expandToMapObjects(difference.entriesOnlyOnRight().toSortedMap())
 }

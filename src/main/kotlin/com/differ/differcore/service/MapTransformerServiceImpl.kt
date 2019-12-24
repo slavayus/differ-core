@@ -3,19 +3,42 @@ package com.differ.differcore.service
 import com.differ.differcore.utils.*
 import org.springframework.stereotype.Service
 import java.util.*
+import java.util.stream.IntStream
+import java.util.stream.Stream
 import kotlin.math.absoluteValue
 
 @Service
 class MapTransformerServiceImpl : MapTransformerService {
 
-    override fun flattenMap(mapToFlatten: Map<String, Any>): Map<String, Any?> {
-        return mapToFlatten.flatten(JSON_KEY_SEPARATOR)
-    }
+    override fun flattenMap(mapToFlatten: Map<String, Any>): Map<String, Any?> =
+        mapToFlatten.entries
+            .stream()
+            .map { it.key to it.value }
+            .flatMap { flatten(it, JSON_KEY_SEPARATOR) }
+            .collect(
+                { LinkedHashMap() },
+                { map, entry -> map[JSON_KEY_SEPARATOR + entry.first] = entry.second },
+                { map, m -> map.putAll(m) })
 
-    override fun expandToMapObjects(unionData: MutableMap<String, Any>) =
-        mutableMapOf<String, Any?>().apply {
-            unionData.entries
-                .forEach { addEntry(it, this) }
+    private fun flatten(entry: Pair<String, Any?>, keySeparator: String): Stream<Pair<String, Any?>> =
+        with(entry.second) {
+            when (this) {
+                is Map<*, *> ->
+                    entries.stream()
+                        .flatMap { e -> flatten("${entry.first}$keySeparator${e.key}" to e.value, keySeparator) }
+                is List<*> ->
+                    IntStream.range(0, size)
+                        .mapToObj { i -> "${entry.first}$keySeparator-$i" to this[i] }
+                        .flatMap { flatten(it, keySeparator) }
+                else ->
+                    Stream.of(entry)
+            }
+        }
+
+
+    override fun expandToMapObjects(flattenMap: Map<String, Any?>) =
+        on(mutableMapOf<String, Any?>()) {
+            flattenMap.entries.forEach { addEntry(it, this) }
         }
 
 
@@ -50,16 +73,15 @@ class MapTransformerServiceImpl : MapTransformerService {
         addEntry(AbstractMap.SimpleEntry(leftKey, entry.value), tmpMap)
     }
 
-    private fun addToListIfAbsent(value: MutableList<*>, secondKey: String): MutableMap<String, Any?> {
-        val result: MutableMap<String, Any?>?
-        if (value.size > secondKey.toInt().absoluteValue) {
-            result = value[secondKey.toInt().absoluteValue] as MutableMap<String, Any?>
-        } else {
-            result = mutableMapOf()
-            populateList(value, result)
+    private fun addToListIfAbsent(value: MutableList<*>, secondKey: String): MutableMap<String, Any?> =
+        when {
+            value.size > secondKey.toInt().absoluteValue -> value[secondKey.toInt().absoluteValue] as MutableMap<String, Any?>
+            else -> {
+                val result = mutableMapOf<String, Any?>()
+                populateList(value, result)
+                result
+            }
         }
-        return result
-    }
 
     private fun populateList(list: MutableList<*>, value: Any?) = list.apply { asMutableListOfType<Any?>()?.add(value) }
 
