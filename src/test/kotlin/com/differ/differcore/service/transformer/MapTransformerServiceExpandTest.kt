@@ -1,21 +1,20 @@
-package com.differ.differcore.service
+package com.differ.differcore.service.transformer
 
+import com.differ.differcore.service.MapTransformerServiceImpl
 import com.differ.differcore.utils.on
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.hasSize
 import org.hamcrest.collection.IsMapWithSize.aMapWithSize
-import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
-import org.junit.jupiter.api.function.Executable
 import org.mockito.MockitoAnnotations
 import org.mockito.Spy
 
 
-class MapTransformerServiceTest {
+class MapTransformerServiceExpandTest {
     @Spy
     private lateinit var mapTransformerService: MapTransformerServiceImpl
 
@@ -46,7 +45,7 @@ class MapTransformerServiceTest {
                 assertThat(it, aMapWithSize(1))
                 assertTrue(it["home"] is Map<*, *>)
                 with(it["home"] as Map<*, *>) {
-                    assertThat(it, aMapWithSize(1))
+                    assertThat(this, aMapWithSize(1))
                     assertThat("basic-error-controller", equalTo(get("tags")))
                 }
             }
@@ -107,8 +106,8 @@ class MapTransformerServiceTest {
                     with(get("tags") as List<*>) {
                         assertThat(this, hasSize(2))
                         assertAll(
-                            Executable { assertThat("basic-error-controller", equalTo(get(0))) },
-                            Executable { assertThat("basic-controller", equalTo(get(1))) }
+                            { assertThat("basic-error-controller", equalTo(get(0))) },
+                            { assertThat("basic-controller", equalTo(get(1))) }
                         )
                     }
                 }
@@ -161,7 +160,7 @@ class MapTransformerServiceTest {
                     assertTrue(get(0) is Map<*, *>)
                     with(get(0) as Map<*, *>) {
                         assertAll(
-                            { assertThat(it, aMapWithSize(1)) },
+                            { assertThat(this, aMapWithSize(1)) },
                             { assertThat("basic-error-controller", equalTo(get("tags"))) }
                         )
                     }
