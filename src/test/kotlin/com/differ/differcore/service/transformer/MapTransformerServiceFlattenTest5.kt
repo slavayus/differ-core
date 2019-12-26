@@ -7,43 +7,21 @@ import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
-import org.junit.runner.RunWith
-import org.mockito.MockitoAnnotations
-import org.mockito.Spy
-import org.powermock.modules.junit4.PowerMockRunner
 import org.powermock.reflect.Whitebox
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
+class MapTransformerServiceFlattenTest5 {
 
-@RunWith(PowerMockRunner::class)
-class MapTransformerServiceFlattenTest {
-
-    @Spy
     private lateinit var mapTransformerService: MapTransformerServiceImpl
 
     @BeforeEach
-    fun initMocks() {
-        MockitoAnnotations.initMocks(this)
+    fun init() {
+        mapTransformerService = MapTransformerServiceImpl()
     }
-
-//    @Test
-//    @PrepareForTest(MapTransformerServiceImpl::class)
-//    fun flattenTest() {
-//        mapTransformerService = MapTransformerServiceImpl()
-//
-//        val spy = PowerMockito.spy(mapTransformerService)
-//        PowerMockito.doReturn("Test").`when`(spy, FLATTEN_METHOD)
-//        val value = spy.flattenMap(mapOf())
-//
-//        assertThat(value, equalTo("Mock private method example: Test"))
-//        PowerMockito.verifyPrivate(spy, Mockito.times(1)).invoke(FLATTEN_METHOD)
-//    }
 
     @Test
     fun flatten_keyAndValue() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -63,8 +41,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueMapWithOneElement() {//по два елемента
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -84,8 +60,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueMapWithTwoElement() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -111,8 +85,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueMapWithOneListWithOneElement() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -132,8 +104,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueMapWithTwoListWithOneElement() {//map list with two element, map with two lists
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -159,8 +129,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueMapWithOneListWithTwoElements() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -198,8 +166,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueListWithOneElement() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -219,8 +185,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueListWithTwoElements() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -246,8 +210,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueListWithMapWithOneElement() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -267,8 +229,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueListWithListWithMapWithOneElement() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -288,8 +248,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueListWithListWithMapWithTwoElement() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -315,8 +273,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueListWithListOneElement() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
@@ -336,8 +292,6 @@ class MapTransformerServiceFlattenTest {
 
     @Test
     fun flatten_keyAndValueListWithListTwoElement() {
-        mapTransformerService = MapTransformerServiceImpl()
-
         val actual = Whitebox.invokeMethod<Stream<Pair<String, String>>>(
             mapTransformerService,
             FLATTEN_METHOD,
