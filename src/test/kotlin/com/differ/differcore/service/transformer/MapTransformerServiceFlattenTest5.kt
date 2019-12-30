@@ -1,6 +1,7 @@
 package com.differ.differcore.service.transformer
 
 import com.differ.differcore.service.MapTransformerServiceImpl
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.hasSize
@@ -62,6 +63,28 @@ class MapTransformerServiceFlattenTest5 {
     fun joinKeyList_whenListWithOneElementAndIndexAsListSize_shouldReturnJustDot() {
         val actual = Whitebox.invokeMethod<String>(mapTransformerService, JOIN_KEY_LIST_METHOD, listOf("1"), 1)
         assertThat(actual, equalTo("."))
+    }
+
+    @Test
+    fun populateList_whenListIsEmpty_shouldAddElement() {
+        val inputValue = mutableListOf<String>()
+        val actual = Whitebox.invokeMethod<Boolean>(mapTransformerService, POPULATE_LIST_METHOD, inputValue, "1")
+        assertAll(
+            { assertThat(actual, `is`(true)) },
+            { assertThat(inputValue, hasSize(1)) },
+            { assertThat(inputValue[0], equalTo("1")) }
+        )
+    }
+
+    @Test
+    fun populateList_whenListWithIncorrectType_shouldAddElement() {
+        val inputValue = mutableListOf(1)
+        val actual = Whitebox.invokeMethod<Boolean>(mapTransformerService, POPULATE_LIST_METHOD, inputValue, "1")
+        assertAll(
+            { assertThat(actual, `is`(true)) },
+            { assertThat(inputValue, hasSize(2)) },
+            { assertThat(inputValue[0], equalTo(1)) }
+        )
     }
 
     @Test
@@ -363,5 +386,6 @@ class MapTransformerServiceFlattenTest5 {
         private const val FLATTEN_METHOD = "flatten"
         private const val SECOND_KEY_METHOD = "secondKey"
         private const val JOIN_KEY_LIST_METHOD = "joinKeyList"
+        private const val POPULATE_LIST_METHOD = "populateList"
     }
 }
