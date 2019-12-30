@@ -43,16 +43,16 @@ open class MapTransformerServiceImpl : MapTransformerService {
 
 
     private fun addEntry(entry: Map.Entry<String, Any?>, jsonMap: MutableMap<String, Any?>) {
-        val keyList = entry.key.split(JSON_KEY_SEPARATOR)
-        val key = keyList[1]
+        val keyList = entry.key.substring(1).split(JSON_KEY_SEPARATOR)
+        val key = keyList[0]
         val value = jsonMap[key]
         val secondKey = secondKey(keyList)
-        var remainKey = joinKeyList(keyList, 2)
+        var remainKey = joinKeyList(keyList, 1)
         var deeperMap = mutableMapOf<String, Any?>()
         when {
             value is MutableMap<*, *> -> deeperMap = value.asMutableMapOfType()!!
 
-            keyList.size <= 3 && secondKey.isNegativeNumber() -> {
+            keyList.size <= 2 && secondKey.isNegativeNumber() -> {
                 val list = if (value is MutableList<*>) value else mutableListOf<Any>()
                 populateList(list, entry.value)
                 jsonMap[key] = list
@@ -62,7 +62,7 @@ open class MapTransformerServiceImpl : MapTransformerService {
             secondKey.isNegativeNumber() -> {
                 jsonMap.putIfAbsent(key, mutableListOf(deeperMap))
                 deeperMap = getExistingMapOrCreateNew(jsonMap[key] as MutableList<*>, secondKey)
-                remainKey = joinKeyList(keyList, 3)
+                remainKey = joinKeyList(keyList, 2)
             }
 
             secondKey.isEmpty() -> {
@@ -89,9 +89,11 @@ open class MapTransformerServiceImpl : MapTransformerService {
     private fun populateList(list: MutableList<*>, value: Any?) = list.run { asMutableListOfType<Any?>()?.add(value) }
 
     private fun joinKeyList(keyList: List<String>, start: Int) =
-        keyList.subList(start).joinToString(JSON_KEY_SEPARATOR, JSON_KEY_SEPARATOR)
+        takeIf { start <= keyList.size }
+            ?.let { keyList.subList(start).joinToString(JSON_KEY_SEPARATOR, JSON_KEY_SEPARATOR) }
+            ?: ""
 
-    private fun secondKey(keyList: List<String>) = takeIf { (keyList.size > 2) }?.let { keyList[2] } ?: ""
+    private fun secondKey(keyList: List<String>) = takeIf { (keyList.size > 1) }?.let { keyList[1] } ?: ""
 
     companion object {
         private const val JSON_KEY_SEPARATOR = "."

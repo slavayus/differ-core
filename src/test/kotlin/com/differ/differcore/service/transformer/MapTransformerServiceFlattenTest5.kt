@@ -4,6 +4,7 @@ import com.differ.differcore.service.MapTransformerServiceImpl
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.hasSize
+import org.hamcrest.Matchers.isEmptyString
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -18,6 +19,49 @@ class MapTransformerServiceFlattenTest5 {
     @BeforeEach
     fun init() {
         mapTransformerService = MapTransformerServiceImpl()
+    }
+
+
+    @Test
+    fun secondKey_whenEmptyList_shouldReturnEmptyString() {
+        val actual = Whitebox.invokeMethod<String>(mapTransformerService, SECOND_KEY_METHOD, listOf<String>())
+        assertThat(actual, isEmptyString())
+    }
+
+    @Test
+    fun secondKey_whenListWithOneElement_shouldReturnEmptyString() {
+        val actual = Whitebox.invokeMethod<String>(mapTransformerService, SECOND_KEY_METHOD, listOf("1"))
+        assertThat(actual, isEmptyString())
+    }
+
+    @Test
+    fun secondKey_whenListWithMultipleElement_shouldSecondElement() {
+        val actual = Whitebox.invokeMethod<String>(mapTransformerService, SECOND_KEY_METHOD, listOf("1", "2"))
+        assertThat(actual, equalTo("2"))
+    }
+
+    @Test
+    fun joinKeyList_whenEmptyListAndCorrectStartIndex_shouldReturnDot() {
+        val actual = Whitebox.invokeMethod<String>(mapTransformerService, JOIN_KEY_LIST_METHOD, listOf<String>(), 0)
+        assertThat(actual, equalTo("."))
+    }
+
+    @Test
+    fun joinKeyList_whenEmptyListAndIncorrectStartIndex_shouldReturnEmptyString() {
+        val actual = Whitebox.invokeMethod<String>(mapTransformerService, JOIN_KEY_LIST_METHOD, listOf<String>(), 1)
+        assertThat(actual, isEmptyString())
+    }
+
+    @Test
+    fun joinKeyList_whenListWithOneElementAndCorrectStartIndex_shouldReturnJoinedList() {
+        val actual = Whitebox.invokeMethod<String>(mapTransformerService, JOIN_KEY_LIST_METHOD, listOf("1"), 0)
+        assertThat(actual, equalTo(".1"))
+    }
+
+    @Test
+    fun joinKeyList_whenListWithOneElementAndIndexAsListSize_shouldReturnJustDot() {
+        val actual = Whitebox.invokeMethod<String>(mapTransformerService, JOIN_KEY_LIST_METHOD, listOf("1"), 1)
+        assertThat(actual, equalTo("."))
     }
 
     @Test
@@ -317,5 +361,7 @@ class MapTransformerServiceFlattenTest5 {
 
     companion object {
         private const val FLATTEN_METHOD = "flatten"
+        private const val SECOND_KEY_METHOD = "secondKey"
+        private const val JOIN_KEY_LIST_METHOD = "joinKeyList"
     }
 }
