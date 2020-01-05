@@ -48,8 +48,7 @@ class DiffServiceImpl(
         return difference
     }
 
-    private fun readFileToMap(penultimate: File) =
-        penultimate.let { objectMapper.readValue<Map<String, Any>>(it, type) }
+    private fun readFileToMap(penultimate: File) = objectMapper.readValue<Map<String, Any>>(penultimate, type)
 
     private fun writeDifferenceToFile(difference: MapDifference<String, Any?>) {
         var outString = ""
