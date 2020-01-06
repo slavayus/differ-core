@@ -60,7 +60,7 @@ class DiffServiceImpl(
         val lastFile = provideVersionFile(last) { versionService.getLastVersionFile() }
 
         return when {
-            Objects.isNull(penultimateFile) && Objects.isNull(lastFile) -> Either.Error("No version files was found ")
+            Objects.isNull(penultimateFile) && Objects.isNull(lastFile) -> Either.Error("No version files was found")
             Objects.isNull(penultimateFile) -> Either.Error("No version $penultimate file found")
             Objects.isNull(lastFile) -> Either.Error("No version $last file found")
             else -> {
