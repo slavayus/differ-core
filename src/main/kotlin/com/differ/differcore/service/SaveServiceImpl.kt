@@ -7,9 +7,23 @@ import springfox.documentation.spring.web.DocumentationCache
 import springfox.documentation.swagger2.mappers.ServiceModelToSwagger2Mapper
 import java.io.File
 
-
+/**
+ * Implementation of [SaveService] interface.
+ *
+ * Service uses `springfox.documentation.spring.web.DocumentationCache` from `springfox` to get full description of API.
+ * It saves this description in file system.
+ *
+ * @author Vladislav Iusiumbeli
+ * @since 1.0.0
+ *
+ * @constructor Is used for autowire required beans.
+ *
+ * @param documentationCache instance of `DocumentationCache` to get API description;
+ * @param objectMapper instance of jackson `ObjectMapper` for serialization json to file;
+ * @param mapper instance of `ServiceModelToSwagger2Mapper` to map `springfox` `Document` to `Swagger` object.
+ */
 @Service
-internal open class SaveServiceImpl(
+open class SaveServiceImpl(
     private val documentationCache: DocumentationCache,
     private val objectMapper: ObjectMapper,
     private val mapper: ServiceModelToSwagger2Mapper
@@ -17,7 +31,10 @@ internal open class SaveServiceImpl(
 
     private val defaultFileName = "differ-doc.json"
 
-    override fun start() {
+    /**
+     * Mapping all `springfox` `Document` to `Swagger` object.
+     */
+    override fun save() {
         documentationCache.all()
             .entries
             .map { it.key to mapper.mapDocumentation(it.value) }
@@ -25,6 +42,9 @@ internal open class SaveServiceImpl(
             .let { saveMap(it) }
     }
 
+    /**
+     * Saving current API description in file system.
+     */
     private fun saveMap(it: Map<String, Swagger>) =
         objectMapper.writeValue(File(defaultFileName), it)
 }

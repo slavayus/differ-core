@@ -3,10 +3,42 @@ package com.differ.differcore.render
 import com.google.common.collect.MapDifference
 import freemarker.ext.beans.HashAdapter
 import org.springframework.stereotype.Component
-import java.util.*
 
+/**
+ * Helpful functions for rendering differences.
+ *
+ * @author Vladislav Iusiumbeli
+ * @since 1.0.0
+ */
 @Component
 class RightRenderer : Renderer() {
+
+    /**
+     * Read value of the specified attribute.
+     *
+     * If value was modified then will be returned right value of the 'MapDifference.ValueDifference'
+     *
+     * @param map map to look for;
+     * @param attribute attribute to find value.
+     *
+     * @return Requested attribute value.
+     */
+    override fun attributeValue(map: Map<*, *>, attribute: String) =
+        with(map[attribute]) {
+            when (this) {
+                is MapDifference.ValueDifference<*> -> rightValue()
+                else -> this
+            }
+        }
+
+    /**
+     * Check if this map contains requested tag.
+     *
+     * @param content map to look for;
+     * @param tag tag to find.
+     *
+     * @return `true` if this map contains requested tag, `false` otherwise.
+     */
     override fun shouldRenderMethod(tag: String, content: HashAdapter?): Boolean {
         if (content == null) {
             return false
@@ -24,20 +56,32 @@ class RightRenderer : Renderer() {
             }
     }
 
+    /**
+     * Look up specified in url version in available versions.
+     *
+     * If requested version is listed in available versions list then it will be returned.
+     * Else if there is no requested version then will be returned first version from available list
+     * if list is not empty. In the end if all above returned false will be returned null.
+     *
+     * @param versions a list of available versions;
+     * @param urlVersion version from url param.
+     *
+     * @return version from available list if there is such version, 'null' otherwise.
+     */
     override fun versionSelected(versions: List<String>, urlVersion: String?): String? =
-        if (Objects.isNull(urlVersion)) {
-            if (versions.isNotEmpty()) {
-                versions.first()
-            } else {
-                null
-            }
-        } else {
-            versions.stream()
-                .filter { it == urlVersion }
-                .findFirst()
-                .orElseGet { null }
+        when {//todo test this shit
+            versions.contains(urlVersion) -> urlVersion
+            versions.isNotEmpty() -> versions.first()
+            else -> null
         }
 
+    /**
+     * Check if fully removed method from specified version.
+     *
+     * This method is not implemented in this this renderer because method cannot be removed from right comlumn.
+     *
+     * @throws UnsupportedOperationException
+     */
     override fun isFullyRemovedMethod(
         left: Map<String, Any?>,
         right: Map<String, Any?>,
@@ -46,13 +90,4 @@ class RightRenderer : Renderer() {
     ): Boolean {
         throw UnsupportedOperationException()
     }
-
-    override fun attributeValue(attribute: Map<*, *>, value: String) =
-        with(attribute[value]) {
-            when (this) {
-                is MapDifference.ValueDifference<*> -> rightValue()
-                else -> this
-            }
-        }
-
 }

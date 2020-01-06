@@ -1,15 +1,36 @@
 package com.differ.differcore.service
 
-import com.differ.differcore.utils.*
+import com.differ.differcore.utils.asMutableListOfType
+import com.differ.differcore.utils.asMutableMapOfType
+import com.differ.differcore.utils.isNegativeNumber
+import com.differ.differcore.utils.on
 import org.springframework.stereotype.Service
 import java.util.*
 import java.util.stream.IntStream
 import java.util.stream.Stream
 import kotlin.math.absoluteValue
 
+/**
+ * Implementation of [MapTransformerService] interface.
+ *
+ * Service expand flattened map and vice versa.
+ *
+ * @author Vladislav Iusiumbeli
+ * @since 1.0.0
+ */
 @Service
 open class MapTransformerServiceImpl : MapTransformerService {
 
+    /**
+     * Flatten json data in map format.
+     *
+     * For example if there is such flatten map entry `{ 1 : { 2 : 4 } }`
+     * it returns `{ 1.2 : 4 }`.
+     *
+     * @param mapToFlatten expanded json data.
+     *
+     * @return Flattened expanded map.
+     */
     override fun flattenMap(mapToFlatten: Map<String, Any>): Map<String, Any?> =
         mapToFlatten.entries
             .stream()
@@ -36,6 +57,16 @@ open class MapTransformerServiceImpl : MapTransformerService {
         }
 
 
+    /**
+     * Expand flattened map to MutableMap.
+     *
+     * For example if there is such flatten map entry `{ 1.2 : 4 }`
+     * it returns `{ 1 : { 2 : 4 } }`.
+     *
+     * @param flattenMap flattened json data.
+     *
+     * @return Expanded flattened map.
+     */
     override fun expandToMapObjects(flattenMap: Map<String, Any?>) =
         on(mutableMapOf<String, Any?>()) {
             flattenMap.entries.forEach { addEntry(it, this) }
@@ -90,12 +121,16 @@ open class MapTransformerServiceImpl : MapTransformerService {
 
     private fun joinKeyList(keyList: List<String>, start: Int) =
         takeIf { start <= keyList.size }
-            ?.let { keyList.subList(start).joinToString(JSON_KEY_SEPARATOR, JSON_KEY_SEPARATOR) }
+            ?.let { keyList.drop(start).joinToString(JSON_KEY_SEPARATOR, JSON_KEY_SEPARATOR) }
             ?: ""
 
     private fun secondKey(keyList: List<String>) = takeIf { (keyList.size > 1) }?.let { keyList[1] } ?: ""
 
     companion object {
+
+        /**
+         * Joining json keys by this separator.
+         */
         private const val JSON_KEY_SEPARATOR = "."
     }
 }

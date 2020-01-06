@@ -11,15 +11,50 @@ import org.springframework.stereotype.Service
 import java.io.File
 import java.util.*
 
-
+/**
+ * Implementation of [DiffService] interface.
+ *
+ * Looking changes between versions with Google Gson library.
+ * It uses 'com.google.common.collect.Maps.difference' for search.
+ * Jsons are flattened first for a more accurate search. Jsons expand back after search.
+ *
+ * @author Vladislav Iusiumbeli
+ * @since 1.0.0
+ *
+ * @constructor Is used for autowire required beans.
+ *
+ * @param objectMapper instance of jackson 'ObjectMapper' for deserialization json from file;
+ * @param versionService implementation of [VersionService] interface;
+ * @param mapTransformerService implementation of [MapTransformerService] interface;
+ */
 @Service
 class DiffServiceImpl(
     private val objectMapper: ObjectMapper,
     private val versionService: VersionService,
     private val mapTransformerService: MapTransformerService
 ) : DiffService {
+
+    /**
+     * Json presentation in map format.
+     */
     private val type = object : TypeReference<Map<String, Any>>() {}
 
+    /**
+     * Looks for changes in two specified versions.
+     *
+     * Searches [penultimate] and [last] versions in [VersionService].
+     * If penultimate version is specified then it will be looked up [VersionService] else will be invoked [VersionService.getPenultimateVersionFile].
+     * If last version is specified then it will be looked up [VersionService] else will be invoked [VersionService.getLastVersionFile].
+     * If at least one file was not found then will be returned [Either.Error] with appropriate error message otherwise move on.
+     *
+     * After all the necessary files have been found, a search is made for changes in this json data. [Difference] object is the result of search.
+     *
+     * @param[penultimate] penultimate version of the API.
+     * @param[last] last version of the API.
+     *
+     * @return The result of comparing two versions.
+     * If all is fun then will be returned [Either.Success] else will be returned [Either.Error] with message or exception.
+     */
     override fun difference(penultimate: String?, last: String?): Either<Difference> {
         val penultimateFile = provideVersionFile(penultimate) { versionService.getPenultimateVersionFile() }
         val lastFile = provideVersionFile(last) { versionService.getLastVersionFile() }

@@ -4,6 +4,7 @@ plugins {
     id 'org.springframework.boot' version '2.1.9.RELEASE'
     id 'io.spring.dependency-management' version "1.0.8.RELEASE"
     id 'maven-publish'
+    id 'org.jetbrains.dokka' version '0.10.0'
 }
 
 apply plugin: 'maven'
@@ -12,13 +13,19 @@ apply plugin: 'com.differ.differcommit.plugins.DifferCommitPlugin'
 project.group 'com.differ'
 project.version '1.0.0'
 
-sourceCompatibility = 13
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 build.dependsOn differcommit
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/dokka"
+}
 
 bootJar {
     enabled = false
