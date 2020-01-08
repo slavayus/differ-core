@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
  * @since 1.0.0
  */
 @Component
-class LeftRenderer : Renderer() {
+open class LeftRenderer : Renderer() {
 
     /**
      * Read value of the specified attribute.
@@ -27,7 +27,8 @@ class LeftRenderer : Renderer() {
         with(map[attribute]) {
             when (this) {
                 is MapDifference.ValueDifference<*> -> leftValue()
-                else -> this
+                is String -> this
+                else -> null
             }
         }
 
@@ -40,7 +41,7 @@ class LeftRenderer : Renderer() {
      * @return `true` if this map contains requested tag, `false` otherwise.
      */
     override fun shouldRenderMethod(tag: String, content: HashAdapter?): Boolean {
-        if (content == null) {
+        if (content == null || !content.containsKey("tags")) {
             return false
         }
 
@@ -70,7 +71,7 @@ class LeftRenderer : Renderer() {
      * @return version from available list if there is such version, 'null' otherwise.
      */
     override fun versionSelected(versions: List<String>, urlVersion: String?): String? =
-        when {//todo test this shit
+        when {
             versions.contains(urlVersion) -> urlVersion
             versions.size > 1 -> versions[1]
             versions.isNotEmpty() -> versions.first()

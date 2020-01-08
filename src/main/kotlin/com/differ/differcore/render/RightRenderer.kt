@@ -70,7 +70,7 @@ open class RightRenderer : Renderer() {
      * @return version from available list if there is such version, 'null' otherwise.
      */
     override fun versionSelected(versions: List<String>, urlVersion: String?): String? =
-        when {//todo test this shit
+        when {
             versions.contains(urlVersion) -> urlVersion
             versions.isNotEmpty() -> versions.first()
             else -> null
