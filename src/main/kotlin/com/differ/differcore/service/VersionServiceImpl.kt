@@ -87,7 +87,7 @@ class VersionServiceImpl(
      * @return a file which represents specified version of API.
      */
     override fun getVersionFile(version: String): File? =
-        resourceLoader.getResource("$LOCATION${File.separator}$version.json").takeIf { it.exists() }?.file
+        jversions.listFiles { _, name -> name == "$version.json" }.takeIf { it != null && it.isNotEmpty() }?.get(0)
 
     companion object {
 
