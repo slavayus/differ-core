@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
  * @since 1.0.0
  */
 @Component
-class RightRenderer : Renderer() {
+open class RightRenderer : Renderer() {
 
     /**
      * Read value of the specified attribute.
@@ -27,7 +27,8 @@ class RightRenderer : Renderer() {
         with(map[attribute]) {
             when (this) {
                 is MapDifference.ValueDifference<*> -> rightValue()
-                else -> this
+                is String -> this
+                else -> null
             }
         }
 
@@ -40,7 +41,7 @@ class RightRenderer : Renderer() {
      * @return `true` if this map contains requested tag, `false` otherwise.
      */
     override fun shouldRenderMethod(tag: String, content: HashAdapter?): Boolean {
-        if (content == null) {
+        if (content == null || !content.containsKey("tags")) {
             return false
         }
 
