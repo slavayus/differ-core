@@ -46,5 +46,7 @@ open class SaveServiceImpl(
      * Saving current API description in file system.
      */
     private fun saveMap(it: Map<String, Swagger>) =
-        objectMapper.writeValue(File(defaultFileName), it)
+        objectMapper.writeValue(provideSaveFile(), it)
+
+    open fun provideSaveFile() = File(defaultFileName)
 }
