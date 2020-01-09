@@ -9,12 +9,14 @@ import com.differ.differcore.service.VersionService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.ui.set
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseBody
 
 /**
  * Main controller of the application.
@@ -62,6 +64,28 @@ class DifferController(
         processDiffServiceResponse(difference, model)
         return "template"
     }
+
+    /**
+     * Request for a full differences between versions.
+     *
+     * Produces and consumes `application/json`.
+     *
+     * Params can be null. Then it will search for suitable versions:
+     *         if old version is null then it will search for penultimate version file;
+     *         if new version is null then it will search for last version file.
+     *
+     * @param[old] an old version api for comparison;
+     * @param[new] a new version api for comparison.
+     *
+     * @return Whole differences in api versions.
+     */
+    @GetMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ResponseBody
+    fun getFullDiffJson(
+        model: Model,
+        @RequestParam(value = "left", required = false) old: String?,
+        @RequestParam(value = "right", required = false) new: String?
+    ) = diffService.difference(old, new)
 
 
     /**
