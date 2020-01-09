@@ -6,6 +6,8 @@ import com.differ.differcore.models.Either
 import com.differ.differcore.render.Renderer
 import com.differ.differcore.service.DiffService
 import com.differ.differcore.service.VersionService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -30,14 +32,14 @@ import org.springframework.web.bind.annotation.RequestParam
  * @param rightRenderer bean with '@Qualifier("rightRenderer")', concrete instance of [Renderer] abstract class that renders right column.
  */
 @Controller
-@RequestMapping(value = [DifferController.DEFAULT_URL])
+@RequestMapping(value = [DEFAULT_URL])
 class DifferController(
     private val diffService: DiffService,
     private val versionService: VersionService,
     @Qualifier("leftRenderer") private val leftRenderer: Renderer,
     @Qualifier("rightRenderer") private val rightRenderer: Renderer
 ) {
-
+    private val log: Logger = LoggerFactory.getLogger(DifferController::class.java)
     /**
      * Request for a full html page with version differences.
      *

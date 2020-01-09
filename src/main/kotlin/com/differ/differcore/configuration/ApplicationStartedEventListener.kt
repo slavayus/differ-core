@@ -1,6 +1,7 @@
 package com.differ.differcore.configuration
 
 import com.differ.differcore.service.SaveService
+import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationStartedEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
@@ -22,10 +23,14 @@ import org.springframework.stereotype.Component
 open class ApplicationStartedEventListener(
     private var saveService: SaveService
 ) : ApplicationListener<ApplicationStartedEvent> {
+    private val log = LoggerFactory.getLogger(SaveService::class.java)
 
     /**
      * Handle an application started event.
      * @param event the event to respond to
      */
-    override fun onApplicationEvent(event: ApplicationStartedEvent) = saveService.save()
+    override fun onApplicationEvent(event: ApplicationStartedEvent) {
+        log.debug("Handle application event started ")
+        saveService.save()
+    }
 }

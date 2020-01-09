@@ -69,7 +69,7 @@
                                 <#if !leftRenderer.containsParameter(right, path, method, "name", parameter?index)>
                                     <div class="parameter__name <#if parameter.name?is_hash>removed</#if>">
                                         ${leftRenderer.attributeValue(parameter, "name")}
-                                        <label class="parameter__name <#if parameter.required?is_hash>removed</#if> <#if leftRenderer.attributeValue(parameter,"required")>required</#if>"></label>
+                                        <label class="parameter__name <#if parameter.required?is_hash>removed</#if> <#if leftRenderer.attributeValue(parameter,"required")!false>required</#if>"></label>
                                     </div>
                                 </#if>
                                 <#if !leftRenderer.containsParameter(right, path, method, "type", parameter?index)>

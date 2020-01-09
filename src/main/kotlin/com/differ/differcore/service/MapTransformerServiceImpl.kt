@@ -4,6 +4,7 @@ import com.differ.differcore.utils.asMutableListOfType
 import com.differ.differcore.utils.asMutableMapOfType
 import com.differ.differcore.utils.isNegativeNumber
 import com.differ.differcore.utils.on
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
 import java.util.stream.IntStream
@@ -20,6 +21,7 @@ import kotlin.math.absoluteValue
  */
 @Service
 open class MapTransformerServiceImpl : MapTransformerService {
+    private val log = LoggerFactory.getLogger(MapTransformerServiceImpl::class.java)
 
     /**
      * Flatten json data in map format.
@@ -35,7 +37,9 @@ open class MapTransformerServiceImpl : MapTransformerService {
         mapToFlatten.entries
             .stream()
             .map { it.key to it.value }
+            .peek { log.debug("Pair before flatten: $it") }
             .flatMap { flatten(it, JSON_KEY_SEPARATOR) }
+            .peek { log.debug("Pair after flatten: $it") }
             .collect(
                 { LinkedHashMap() },
                 { map, entry -> map[JSON_KEY_SEPARATOR + entry.first] = entry.second },
@@ -67,10 +71,18 @@ open class MapTransformerServiceImpl : MapTransformerService {
      *
      * @return Expanded flattened map.
      */
-    override fun expandToMapObjects(flattenMap: Map<String, Any?>) =
-        on(mutableMapOf<String, Any?>()) {
+    override fun expandToMapObjects(flattenMap: Map<String, Any?>): MutableMap<String, Any?> {
+        log.debug("Flattened map before expand:")
+        flattenMap.forEach { (key, value) -> log.debug("$key: $value") }
+
+        val expandedMap = on(mutableMapOf<String, Any?>()) {
             flattenMap.entries.forEach { addEntry(it, this) }
         }
+
+        log.debug("Flattened map after expand:")
+        expandedMap.forEach { (key, value) -> log.debug("$key: $value") }
+        return expandedMap
+    }
 
 
     private fun addEntry(entry: Map.Entry<String, Any?>, jsonMap: MutableMap<String, Any?>) {

@@ -1,5 +1,6 @@
 package com.differ.differcore.service
 
+import org.slf4j.LoggerFactory
 import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Service
 import java.io.File
@@ -23,6 +24,7 @@ import javax.annotation.PostConstruct
 class VersionServiceImpl(
     private val resourceLoader: ResourceLoader
 ) : VersionService {
+    private val log = LoggerFactory.getLogger(SaveService::class.java)
 
     /**
      * Location of all API version files.
@@ -44,11 +46,12 @@ class VersionServiceImpl(
      * @return a list of available API versions
      */
     override fun getAllVersions(): List<String> =
-        jversions
+        (jversions
             .listFiles()
             ?.map { it.name }
             ?.map { it.removeSuffix(".json") }
-            ?: Collections.emptyList()
+            ?: Collections.emptyList())
+            .apply { log.debug("Versions was found: ${joinToString()}") }
 
     /**
      * Looking last version of API file.
@@ -59,9 +62,10 @@ class VersionServiceImpl(
      * @return a file which represents last version of API.
      */
     override fun getLastVersionFile(): File? =
-        jversions
+        (jversions
             .listFiles()
-            ?.max()
+            ?.max())
+            .apply { log.debug("Last version is: ${this?.absolutePath}") }
 
     /**
      * Looking penultimate version of API file.
@@ -73,7 +77,10 @@ class VersionServiceImpl(
      */
     override fun getPenultimateVersionFile(): File? {
         val sortedVersions = jversions.listFiles()?.sorted()
-        return takeIf { sortedVersions != null && sortedVersions.size > 1 }?.let { sortedVersions!![sortedVersions.size - 2] }
+        val penultimateVersionFile =
+            takeIf { sortedVersions != null && sortedVersions.size > 1 }?.let { sortedVersions!![sortedVersions.size - 2] }
+        log.debug("Penultimate version is: ${penultimateVersionFile?.absolutePath}")
+        return penultimateVersionFile
     }
 
     /**
@@ -88,6 +95,7 @@ class VersionServiceImpl(
      */
     override fun getVersionFile(version: String): File? =
         jversions.listFiles { _, name -> name == "$version.json" }.takeIf { it != null && it.isNotEmpty() }?.get(0)
+            .apply { log.debug("Found $version file: ${this?.absolutePath}") }
 
     companion object {
 

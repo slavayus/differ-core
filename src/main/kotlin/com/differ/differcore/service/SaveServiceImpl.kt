@@ -2,6 +2,7 @@ package com.differ.differcore.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.models.Swagger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import springfox.documentation.spring.web.DocumentationCache
 import springfox.documentation.swagger2.mappers.ServiceModelToSwagger2Mapper
@@ -28,6 +29,7 @@ open class SaveServiceImpl(
     private val objectMapper: ObjectMapper,
     private val mapper: ServiceModelToSwagger2Mapper
 ) : SaveService {
+    private val log = LoggerFactory.getLogger(SaveService::class.java)
 
     private val defaultFileName = "differ-doc.json"
 
@@ -45,8 +47,11 @@ open class SaveServiceImpl(
     /**
      * Saving current API description in file system.
      */
-    private fun saveMap(it: Map<String, Swagger>) =
-        objectMapper.writeValue(provideSaveFile(), it)
+    private fun saveMap(it: Map<String, Swagger>) {
+        val saveToFile = provideSaveFile()
+        objectMapper.writeValue(saveToFile, it)
+        log.debug("Data was stored in file: ${saveToFile.absolutePath}")
+    }
 
     open fun provideSaveFile() = File(defaultFileName)
 }

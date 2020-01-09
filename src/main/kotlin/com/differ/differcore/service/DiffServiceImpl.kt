@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.collect.MapDifference
 import com.google.common.collect.Maps
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.File
 import java.util.*
@@ -33,6 +34,7 @@ class DiffServiceImpl(
     private val versionService: VersionService,
     private val mapTransformerService: MapTransformerService
 ) : DiffService {
+    private val log = LoggerFactory.getLogger(DiffService::class.java)
 
     /**
      * Json presentation in map format.
@@ -59,6 +61,9 @@ class DiffServiceImpl(
         val penultimateFile = provideVersionFile(penultimate) { versionService.getPenultimateVersionFile() }
         val lastFile = provideVersionFile(last) { versionService.getLastVersionFile() }
 
+        log.debug("Found penultimate version file: ${penultimateFile?.absolutePath}")
+        log.debug("Found last version file: ${lastFile?.absolutePath}")
+
         return when {
             Objects.isNull(penultimateFile) && Objects.isNull(lastFile) -> Either.Error("No version files was found")
             Objects.isNull(penultimateFile) -> Either.Error("No version $penultimate file found")
@@ -74,32 +79,38 @@ class DiffServiceImpl(
         takeIf { version != null }?.let { versionService.getVersionFile(version!!) } ?: orElse()
 
     private fun difference(penultimate: File, last: File): MapDifference<String, Any?> {
-        val leftFlatMap = mapTransformerService.flattenMap(readFileToMap(penultimate))
-        val rightFlatMap = mapTransformerService.flattenMap(readFileToMap(last))
+        val penultimateToFlatten = readFileToMap(penultimate)
+        log.debug("Data from penultimate file: $penultimateToFlatten")
+        val leftFlatMap = mapTransformerService.flattenMap(penultimateToFlatten)
+
+        val lastToFlatten = readFileToMap(last)
+        log.debug("Data from last file: $lastToFlatten")
+        val rightFlatMap = mapTransformerService.flattenMap(lastToFlatten)
 
         val difference = Maps.difference(leftFlatMap, rightFlatMap)
 
-        writeDifferenceToFile(difference)
+        debugLogDifference(difference)
         return difference
     }
 
     private fun readFileToMap(penultimate: File) = objectMapper.readValue<Map<String, Any>>(penultimate, type)
 
-    private fun writeDifferenceToFile(difference: MapDifference<String, Any?>) {
-        var outString = ""
-        outString += "Entries only on left\n--------------------------\n"
-        difference.entriesOnlyOnLeft().forEach { (key, value) -> outString += "$key: $value\n" }
+    private fun debugLogDifference(difference: MapDifference<String, Any?>) {
+        log.debug("Entries only on left")
+        log.debug("--------------------------")
+        difference.entriesOnlyOnLeft().forEach { (key, value) -> log.debug("$key: $value") }
 
-        outString += "\n\nEntries only on right\n--------------------------\n"
-        difference.entriesOnlyOnRight().forEach { (key, value) -> outString += "$key: $value\n" }
+        log.debug("Entries only on right")
+        log.debug("--------------------------")
+        difference.entriesOnlyOnRight().forEach { (key, value) -> log.debug("$key: $value") }
 
-        outString += "\n\nEntries differing\n--------------------------\n"
-        difference.entriesDiffering().forEach { (key, value) -> outString += "$key: $value\n" }
+        log.debug("Entries differing")
+        log.debug("--------------------------")
+        difference.entriesDiffering().forEach { (key, value) -> log.debug("$key: $value") }
 
-        outString += "\n\nEntries in common\n--------------------------\n"
-        difference.entriesInCommon().forEach { (key, value) -> outString += "$key: $value\n" }
-        val outFile = File("out-diff.txt")
-        outFile.writeText(outString)
+        log.debug("Entries in common")
+        log.debug("--------------------------")
+        difference.entriesInCommon().forEach { (key, value) -> log.debug("$key: $value") }
     }
 
 

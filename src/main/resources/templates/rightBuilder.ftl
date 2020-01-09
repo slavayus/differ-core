@@ -59,7 +59,7 @@
 
                         <tr class="parameters">
                             <td class="col parameters-col_name">
-                                <div class="parameter__name <#if rightRenderer.attributeValue(parameter, "required")>required</#if>">
+                                <div class="parameter__name <#if rightRenderer.attributeValue(parameter, "required")!false>required</#if>">
                                     ${rightRenderer.attributeValue(parameter, "name")}
                                 </div>
                                 <div class="parameter__type">
