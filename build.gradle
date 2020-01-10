@@ -20,6 +20,28 @@ repositories {
     jcenter()
 }
 
+sourceSets {
+    testIntegration {
+        java.srcDir 'src/testIntegration/java'
+        kotlin.srcDir 'src/testIntegration/kotlin'
+        resources.srcDir 'src/testIntegration/resources'
+        compileClasspath += main.output
+        runtimeClasspath += main.output
+    }
+}
+
+configurations {
+    testIntegrationCompile.extendsFrom testImplementation
+    testIntegrationRuntime.extendsFrom testRuntimeOnly
+}
+
+task testIntegration(type: Test) {
+    testClassesDirs = sourceSets.testIntegration.output.classesDirs
+    classpath = sourceSets.testIntegration.runtimeClasspath
+}
+check.dependsOn testIntegration
+testIntegration.mustRunAfter test
+
 build.dependsOn differcommit
 
 dokka {
@@ -41,6 +63,10 @@ jar {
 }
 
 test {
+    useJUnitPlatform()
+}
+
+testIntegration {
     useJUnitPlatform()
 }
 
@@ -71,5 +97,9 @@ compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+compileTestIntegrationKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
