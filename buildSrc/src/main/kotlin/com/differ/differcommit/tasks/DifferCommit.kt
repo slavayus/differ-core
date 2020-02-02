@@ -2,14 +2,22 @@ package com.differ.differcommit.tasks
 
 import com.differ.differcommit.configuration.AppConfiguration
 import com.differ.differcommit.exceptions.GitCredentialsNotProvidedException
+import com.differ.differcommit.generator.IncrementLastFileProvider
+import com.differ.differcommit.generator.IncrementVersionGenerator
+import com.differ.differcommit.generator.VersionGenerator
 import com.differ.differcommit.models.CommitProperties
 import com.differ.differcommit.service.CommitService
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 
 open class DifferCommit : DefaultTask() {
+
+    @Internal
+    lateinit var versionGenerator: VersionGenerator
+
     @TaskAction
     fun commit() {
         val context = AnnotationConfigApplicationContext(AppConfiguration::class.java)
@@ -18,7 +26,7 @@ open class DifferCommit : DefaultTask() {
             .apply { initValuesFromProperties(this) }
 
         context.getBean(CommitService::class.java)
-            .processNewApiVersion()
+            .processNewApiVersion(versionGenerator)
     }
 
     private fun initValuesFromProperties(properties: CommitProperties) {
@@ -44,6 +52,9 @@ open class DifferCommit : DefaultTask() {
                           |Or you can set property '$DIFFERCOMMIT_VERSIONS_GIT_PUSH_REQUIRED' to false if push is not required.""".trimMargin()
                     )
             }
+        }
+        if (!::versionGenerator.isInitialized) {
+            versionGenerator = IncrementVersionGenerator(IncrementLastFileProvider())
         }
     }
 
