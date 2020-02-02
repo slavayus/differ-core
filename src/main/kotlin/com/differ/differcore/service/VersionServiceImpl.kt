@@ -31,22 +31,22 @@ class VersionServiceImpl(
      *
      * It should be a directory which contains API version files.
      */
-    private lateinit var jversions: File
+    private lateinit var dversions: File
 
     @PostConstruct
     fun init() {
-        jversions = resourceLoader.getResource(LOCATION).file
+        dversions = resourceLoader.getResource(LOCATION).file
     }
 
     /**
      * Looking for all available API versions.
      *
-     * It gets all files from `jversions` directory. collect only files name without suffix `.json`.
+     * It gets all files from `dversions` directory. collect only files name without suffix `.json`.
      *
      * @return a list of available API versions
      */
     override fun getAllVersions(): List<String> =
-        (jversions
+        (dversions
             .listFiles()
             ?.map { it.name }
             ?.map { it.removeSuffix(".json") }
@@ -62,7 +62,7 @@ class VersionServiceImpl(
      * @return a file which represents last version of API.
      */
     override fun getLastVersionFile(): File? =
-        (jversions
+        (dversions
             .listFiles()
             ?.max())
             .apply { log.debug("Last version is: ${this?.absolutePath}") }
@@ -76,7 +76,7 @@ class VersionServiceImpl(
      * @return a file which represents penultimate version of API.
      */
     override fun getPenultimateVersionFile(): File? {
-        val sortedVersions = jversions.listFiles()?.sorted()
+        val sortedVersions = dversions.listFiles()?.sorted()
         val penultimateVersionFile =
             takeIf { sortedVersions != null && sortedVersions.size > 1 }?.let { sortedVersions!![sortedVersions.size - 2] }
         log.debug("Penultimate version is: ${penultimateVersionFile?.absolutePath}")
@@ -94,7 +94,7 @@ class VersionServiceImpl(
      * @return a file which represents specified version of API.
      */
     override fun getVersionFile(version: String): File? =
-        jversions.listFiles { _, name -> name == "$version.json" }.takeIf { it != null && it.isNotEmpty() }?.get(0)
+        dversions.listFiles { _, name -> name == "$version.json" }.takeIf { it != null && it.isNotEmpty() }?.get(0)
             .apply { log.debug("Found $version file: ${this?.absolutePath}") }
 
     companion object {
@@ -102,6 +102,6 @@ class VersionServiceImpl(
         /**
          * Default location of directory with API version files.
          */
-        private const val LOCATION = "classpath:jversions"
+        private const val LOCATION = "classpath:dversions"
     }
 }

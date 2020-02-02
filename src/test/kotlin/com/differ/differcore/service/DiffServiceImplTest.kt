@@ -68,7 +68,7 @@ class DiffServiceImplTest {
 
         val actual: Either<Difference> = diffServiceImpl.difference("0001", "0002")
         val expected: Either.Error =
-            Either.Error("No version 0001 file found")
+            Either.Error("No version 0001 file was found")
 
 
         assertThat("difference is error", actual is Either.Error)
@@ -86,7 +86,7 @@ class DiffServiceImplTest {
 
         val actual: Either<Difference> = diffServiceImpl.difference("0001", "0002")
         val expected: Either.Error =
-            Either.Error("No version 0002 file found")
+            Either.Error("No version 0002 file was found")
 
 
         assertThat("difference is error", actual is Either.Error)
@@ -189,7 +189,7 @@ class DiffServiceImplTest {
 
         val actual: Either<Difference> = diffServiceImpl.difference(null, "0002")
         val expected: Either.Error =
-            Either.Error("No version null file found")
+            Either.Error("No version null file was found")
 
 
         assertThat("difference is error", actual is Either.Error)
@@ -207,7 +207,7 @@ class DiffServiceImplTest {
 
         val actual: Either<Difference> = diffServiceImpl.difference("0001", null)
         val expected: Either.Error =
-            Either.Error("No version null file found")
+            Either.Error("No version null file was found")
 
 
         assertThat("difference is error", actual is Either.Error)
