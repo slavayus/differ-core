@@ -34,7 +34,7 @@ class DiffServiceImpl(
     private val versionService: VersionService,
     private val mapTransformerService: MapTransformerService
 ) : DiffService {
-    private val log = LoggerFactory.getLogger(DiffService::class.java)
+    private val log = LoggerFactory.getLogger(DiffServiceImpl::class.java)
 
     /**
      * Json presentation in map format.
@@ -66,8 +66,8 @@ class DiffServiceImpl(
 
         return when {
             Objects.isNull(penultimateFile) && Objects.isNull(lastFile) -> Either.Error("No version files was found")
-            Objects.isNull(penultimateFile) -> Either.Error("No version $penultimate file found")
-            Objects.isNull(lastFile) -> Either.Error("No version $last file found")
+            Objects.isNull(penultimateFile) -> Either.Error("No version $penultimate file was found")
+            Objects.isNull(lastFile) -> Either.Error("No version $last file was found")
             else -> {
                 val difference = difference(penultimateFile!!, lastFile!!)
                 Either.Success(Difference(fullDiff(difference), onlyOnLeft(difference), onlyOnRight(difference)))

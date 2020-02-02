@@ -5,10 +5,12 @@ plugins {
     id 'io.spring.dependency-management' version "1.0.8.RELEASE"
     id 'maven-publish'
     id 'org.jetbrains.dokka' version '0.10.0'
+    id "org.asciidoctor.convert" version "1.5.9.2"
 }
 
 apply plugin: 'maven'
 apply plugin: 'com.differ.differcommit.plugins.DifferCommitPlugin'
+apply plugin: 'org.asciidoctor.convert'
 
 project.group 'com.differ'
 project.version '1.0.0'
@@ -66,11 +68,12 @@ test {
     useJUnitPlatform()
 }
 
+ext['snippetsDir'] = file('build/generated-snippets')
+
 testIntegration {
     useJUnitPlatform()
+    outputs.dir snippetsDir
 }
-
-ext['junit-jupiter.version'] = '5.4.0'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -80,6 +83,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-freemarker'
     implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.4.RELEASE'
+    testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc:2.0.4.RELEASE'
 
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
@@ -102,4 +108,35 @@ compileTestKotlin {
 
 compileTestIntegrationKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+asciidoctor {
+    backends = ['html5']
+    options doctype: 'book'
+
+        attributes = [
+            'source-highlighter': 'highlightjs',
+            'imagesdir'         : './images',
+            'toc'               : 'left',
+            'toclevels'         : 3,
+            'numbered'          : '',
+            'icons'             : 'font',
+            'setanchors'        : '',
+            'idprefix'          : '',
+            'idseparator'       : '-',
+            'docinfo1'          : '',
+            'safe-mode-unsafe'  : '',
+            'allow-uri-read'    : '',
+            'snippets'          : snippetsDir,
+            linkattrs           : true,
+            encoding            : 'utf-8'
+    ]
+
+    inputs.dir snippetsDir
+    dependsOn testIntegration
+    outputs.dir file("build/asciidoc")
+    sourceDir file('src/docs/asciidoc')
+    sources {
+        include 'index.adoc'
+    }
 }

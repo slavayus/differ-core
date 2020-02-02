@@ -1,0 +1,47 @@
+== Rest convention
+
+include::rest_conv.adoc[]
+
+== Endpoints
+
+=== DiffService
+
+==== Get diff between versions
+
+===== Curl example
+
+include::{snippets}/differ-controller-test/get-full-diff-json-success-result/curl-request.adoc[]
+
+===== HTTP Request
+
+include::{snippets}/differ-controller-test/get-full-diff-json-success-result/http-request.adoc[]
+
+===== HTTP Request parameters
+
+include::{snippets}/differ-controller-test/get-full-diff-json-success-result/request-parameters.adoc[]
+
+===== HTTP Response
+
+====== Success HTTP responses
+
+include::{snippets}/differ-controller-test/get-full-diff-json-success-result/http-response.adoc[]
+
+====== Success response fields
+
+include::{snippets}/differ-controller-test/get-full-diff-json-success-result/response-fields.adoc[]
+
+====== Response body
+
+include::{snippets}/differ-controller-test/get-full-diff-json-success-result/response-body.adoc[]
+
+====== Not Found HTTP responses
+
+include::{snippets}/differ-controller-test/get-full-diff-json-error-result/http-response.adoc[]
+
+====== Success response fields
+
+include::{snippets}/differ-controller-test/get-full-diff-json-error-result/response-fields.adoc[]
+
+====== Response body
+
+include::{snippets}/differ-controller-test/get-full-diff-json-error-result/response-body.adoc[]

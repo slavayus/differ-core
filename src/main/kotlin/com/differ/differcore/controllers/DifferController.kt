@@ -9,7 +9,9 @@ import com.differ.differcore.service.VersionService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.ui.set
@@ -82,11 +84,14 @@ class DifferController(
     @GetMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
     fun getFullDiffJson(
-        model: Model,
         @RequestParam(value = "left", required = false) old: String?,
         @RequestParam(value = "right", required = false) new: String?
-    ) = diffService.difference(old, new)
-
+    ): ResponseEntity<*> {
+        return when (val diff = diffService.difference(old, new)) {
+            is Either.Success -> ResponseEntity.ok(diff.value)
+            is Either.Error -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(diff)
+        }
+    }
 
     /**
      * Request only diff part of the html page.
