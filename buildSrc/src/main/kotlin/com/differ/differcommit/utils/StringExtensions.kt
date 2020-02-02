@@ -1,8 +1,3 @@
 package com.differ.differcommit.utils
 
-fun String.isInt() = try {
-    toInt()
-    true
-} catch (ex: NumberFormatException) {
-    false
-}
+fun String.isInt() = toIntOrNull() != null

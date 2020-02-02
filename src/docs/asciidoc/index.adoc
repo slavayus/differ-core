@@ -4,7 +4,7 @@ v1.0.0, Feb 2, 2020
 
 == Terminology
 
-* This is Differ generated documentation based on Spring RestDocs.
+* This is Differ generated documentation based on Spring REST Docs.
 * All sources are available at github https://github.com/viusiumbeli/differ-core
 
 include::etc/rest_doc.adoc[]
