@@ -3,7 +3,6 @@ package com.differ.differcore.controllers
 import com.differ.differcore.models.Difference
 import com.differ.differcore.models.Either
 import com.differ.differcore.service.DiffService
-import com.differ.differcore.trash.Application
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
