@@ -35,7 +35,7 @@ class VersionServiceImpl(
 
     @PostConstruct
     fun init() {
-        dversions = resourceLoader.getResource(LOCATION).file
+        dversions = resourceLoader.getResource(LOCATION).takeIf { it.exists() }?.file ?: File(LOCATION)
     }
 
     /**
