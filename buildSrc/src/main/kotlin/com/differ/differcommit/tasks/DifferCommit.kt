@@ -2,10 +2,10 @@ package com.differ.differcommit.tasks
 
 import com.differ.differcommit.configuration.AppConfiguration
 import com.differ.differcommit.exceptions.GitCredentialsNotProvidedException
-import com.differ.differcommit.generator.IncrementLastFileProvider
-import com.differ.differcommit.generator.IncrementVersionGenerator
-import com.differ.differcommit.generator.VersionGenerator
 import com.differ.differcommit.models.CommitProperties
+import com.differ.differcommit.naming.generator.IncrementVersionGenerator
+import com.differ.differcommit.naming.generator.VersionGenerator
+import com.differ.differcommit.naming.provider.IncrementLastFileProvider
 import com.differ.differcommit.service.CommitService
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal

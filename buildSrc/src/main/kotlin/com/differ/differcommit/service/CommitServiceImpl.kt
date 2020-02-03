@@ -1,7 +1,7 @@
 package com.differ.differcommit.service
 
-import com.differ.differcommit.generator.VersionGenerator
 import com.differ.differcommit.models.CommitProperties
+import com.differ.differcommit.naming.generator.VersionGenerator
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
