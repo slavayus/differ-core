@@ -7,10 +7,12 @@ import com.differ.differcommit.naming.generator.IncrementVersionGenerator
 import com.differ.differcommit.naming.generator.VersionGenerator
 import com.differ.differcommit.naming.provider.IncrementLastFileProvider
 import com.differ.differcommit.service.CommitService
+import com.differ.differcommit.utils.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import java.util.*
 
 
 open class DifferCommit : DefaultTask() {
@@ -32,25 +34,30 @@ open class DifferCommit : DefaultTask() {
     private fun initValuesFromProperties(properties: CommitProperties) {
         with(properties) {
             project.properties[DIFFERCOMMIT_VERSIONS_HOME_DIR]?.toString()?.let { homeDir = it }
-            project.properties[DIFFERCOMMIT_VERSIONS_COMMIT_MESSAGE]?.toString()?.let { commitMessage = it }
+            project.properties[DIFFERCOMMIT_VERSIONS_GIT_COMMIT_MESSAGE]?.toString()?.let { commitMessage = it }
             project.properties[DIFFERCOMMIT_VERSIONS_TPM_DOC]?.toString()?.let { tmpDifferDoc = it }
             project.properties[DIFFERCOMMIT_VERSIONS_GIT_PUSH_REQUIRED]?.toString()
                 ?.let { pushRequired = it.toBoolean() }
 
             if (pushRequired) {
-                username = project.properties[DIFFERCOMMIT_VERSIONS_GIT_USERNAME]?.toString()
-                    ?: throw GitCredentialsNotProvidedException(
-                        """There is no username for GIT account in properties. 
-                          |Please provider property with key '$DIFFERCOMMIT_VERSIONS_GIT_USERNAME' and username as value. 
-                          |Or you can set property '$DIFFERCOMMIT_VERSIONS_GIT_PUSH_REQUIRED' to false if push is not required.""".trimMargin()
-                    )
-
-                password = project.properties[DIFFERCOMMIT_VERSIONS_GIT_PASSWORD]?.toString()
-                    ?: throw GitCredentialsNotProvidedException(
-                        """There is no password for GIT account in properties. 
-                          |Please provider property with key '$DIFFERCOMMIT_VERSIONS_GIT_PASSWORD' and password as value. 
-                          |Or you can set property '$DIFFERCOMMIT_VERSIONS_GIT_PUSH_REQUIRED' to false if push is not required.""".trimMargin()
-                    )
+                username = project.properties[DIFFERCOMMIT_VERSIONS_GIT_HTTP_USERNAME]?.toString()
+                password = project.properties[DIFFERCOMMIT_VERSIONS_GIT_HTTP_PASSWORD]?.toString()
+                sshRsaLocation = project.properties[DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_LOCATION]?.toString()
+                sshRsaPassword = project.properties[DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_PASSWORD]?.toString()
+                when {
+                    allIsNull(username, password, sshRsaLocation, sshRsaPassword) ->
+                        throw GitCredentialsNotProvidedException(
+                            """There is no GIT credentials in properties.
+                              |There are some options:
+                              |You can set property '$DIFFERCOMMIT_VERSIONS_GIT_PUSH_REQUIRED' to false if push is not required.
+                              |If you use http protocol to push data to remote branch then provide properties '$DIFFERCOMMIT_VERSIONS_GIT_HTTP_USERNAME' and '$DIFFERCOMMIT_VERSIONS_GIT_HTTP_PASSWORD'.
+                              |If you use ssh protocol to push data to remote branch then provide properties '$DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_LOCATION' and '$DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_PASSWORD'.""".trimMargin()
+                        )
+                    Objects.isNull(username) && Objects.nonNull(password) -> throwProvideUsername()
+                    Objects.nonNull(username) && Objects.isNull(password) -> throwProvidePassword()
+                    Objects.isNull(sshRsaLocation) && Objects.nonNull(sshRsaPassword) -> throwProvideRsaLocation()
+                    Objects.nonNull(sshRsaLocation) && Objects.isNull(sshRsaPassword) -> throwProvideRsaPassword()
+                }
             }
         }
         if (!::versionGenerator.isInitialized) {
@@ -60,10 +67,12 @@ open class DifferCommit : DefaultTask() {
 
     companion object {
         const val DIFFERCOMMIT_VERSIONS_HOME_DIR = "differcommit.versions.home-dir"
-        const val DIFFERCOMMIT_VERSIONS_COMMIT_MESSAGE = "differcommit.versions.commit-message"
         const val DIFFERCOMMIT_VERSIONS_TPM_DOC = "differcommit.versions.tmp-doc"
-        const val DIFFERCOMMIT_VERSIONS_GIT_USERNAME = "differcommit.versions.git.username"
-        const val DIFFERCOMMIT_VERSIONS_GIT_PASSWORD = "differcommit.versions.git.password"
+        const val DIFFERCOMMIT_VERSIONS_GIT_COMMIT_MESSAGE = "differcommit.versions.git.commit-message"
         const val DIFFERCOMMIT_VERSIONS_GIT_PUSH_REQUIRED = "differcommit.versions.git.push-required"
+        const val DIFFERCOMMIT_VERSIONS_GIT_HTTP_USERNAME = "differcommit.versions.git.http.username"
+        const val DIFFERCOMMIT_VERSIONS_GIT_HTTP_PASSWORD = "differcommit.versions.git.http.password"
+        const val DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_LOCATION = "differcommit.versions.git.ssh.rsa.location"
+        const val DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_PASSWORD = "differcommit.versions.git.ssh.rsa.password"
     }
 }

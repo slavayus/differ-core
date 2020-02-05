@@ -2,11 +2,18 @@ package com.differ.differcommit.service
 
 import com.differ.differcommit.models.CommitProperties
 import com.differ.differcommit.naming.generator.VersionGenerator
+import com.differ.differcommit.utils.throwProvidePassword
+import com.differ.differcommit.utils.throwProvideRsaLocation
+import com.differ.differcommit.utils.throwProvideRsaPassword
+import com.differ.differcommit.utils.throwProvideUsername
+import com.jcraft.jsch.Session
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+import org.eclipse.jgit.transport.*
+import org.eclipse.jgit.util.FS
 import org.springframework.stereotype.Service
 import java.io.File
+import java.util.*
 
 @Service
 class CommitServiceImpl(
@@ -41,13 +48,55 @@ class CommitServiceImpl(
     private fun pushCommit(git: Git) {
         if (commitProperties.pushRequired) {
             git.push()
-                .setCredentialsProvider(
-                    UsernamePasswordCredentialsProvider(
-                        commitProperties.username,
-                        commitProperties.password
-                    )
-                )
+                .setTransportConfigCallback { transport ->
+                    when (transport) {
+                        is SshTransport -> {
+                            checkRequiredSshCredentials()
+                            transport.sshSessionFactory = configureJschSessionFactory()
+                        }
+                        is HttpTransport -> {
+                            checkRequiredHttpCredentials()
+                            transport.credentialsProvider =
+                                UsernamePasswordCredentialsProvider(
+                                    commitProperties.username,
+                                    commitProperties.password
+                                )
+                        }
+                    }
+                }
                 .call()
+        }
+    }
+
+    private fun configureJschSessionFactory() =
+        object : JschConfigSessionFactory() {
+            override fun configure(hc: OpenSshConfig.Host?, session: Session?) {
+            }
+
+            override fun getJSch(hc: OpenSshConfig.Host?, fs: FS?) =
+                super.getJSch(hc, fs)
+                    .apply {
+                        removeAllIdentity()
+                        addIdentity(commitProperties.sshRsaLocation, commitProperties.sshRsaPassword)
+                    }
+        }
+
+
+    private fun checkRequiredSshCredentials() {
+        with(commitProperties) {
+            when {
+                Objects.isNull(sshRsaLocation) -> throwProvideRsaLocation()
+                Objects.isNull(sshRsaPassword) -> throwProvideRsaPassword()
+            }
+        }
+    }
+
+    private fun checkRequiredHttpCredentials() {
+        with(commitProperties) {
+            when {
+                Objects.isNull(username) -> throwProvideUsername()
+                Objects.isNull(password) -> throwProvidePassword()
+            }
         }
     }
 
