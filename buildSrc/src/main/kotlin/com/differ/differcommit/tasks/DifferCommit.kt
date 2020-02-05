@@ -53,10 +53,10 @@ open class DifferCommit : DefaultTask() {
                               |If you use http protocol to push data to remote branch then provide properties '$DIFFERCOMMIT_VERSIONS_GIT_HTTP_USERNAME' and '$DIFFERCOMMIT_VERSIONS_GIT_HTTP_PASSWORD'.
                               |If you use ssh protocol to push data to remote branch then provide properties '$DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_LOCATION' and '$DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_PASSWORD'.""".trimMargin()
                         )
-                    Objects.isNull(username) && Objects.nonNull(password) -> throwProvideUsername()
-                    Objects.nonNull(username) && Objects.isNull(password) -> throwProvidePassword()
-                    Objects.isNull(sshRsaLocation) && Objects.nonNull(sshRsaPassword) -> throwProvideRsaLocation()
-                    Objects.nonNull(sshRsaLocation) && Objects.isNull(sshRsaPassword) -> throwProvideRsaPassword()
+                    Objects.isNull(username) && Objects.nonNull(password) -> throw usernameNotProvidedException()
+                    Objects.nonNull(username) && Objects.isNull(password) -> throw passwordNotProvidedException()
+                    Objects.isNull(sshRsaLocation) && Objects.nonNull(sshRsaPassword) -> throw rsaLocationNotProvidedException()
+                    Objects.nonNull(sshRsaLocation) && Objects.isNull(sshRsaPassword) -> throw rsaPasswordNotProvidedException()
                 }
             }
         }

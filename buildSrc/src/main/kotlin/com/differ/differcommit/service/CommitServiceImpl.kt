@@ -2,10 +2,7 @@ package com.differ.differcommit.service
 
 import com.differ.differcommit.models.CommitProperties
 import com.differ.differcommit.naming.generator.VersionGenerator
-import com.differ.differcommit.utils.throwProvidePassword
-import com.differ.differcommit.utils.throwProvideRsaLocation
-import com.differ.differcommit.utils.throwProvideRsaPassword
-import com.differ.differcommit.utils.throwProvideUsername
+import com.differ.differcommit.utils.*
 import com.jcraft.jsch.Session
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand
@@ -13,7 +10,6 @@ import org.eclipse.jgit.transport.*
 import org.eclipse.jgit.util.FS
 import org.springframework.stereotype.Service
 import java.io.File
-import java.util.*
 
 @Service
 class CommitServiceImpl(
@@ -84,21 +80,16 @@ class CommitServiceImpl(
 
     private fun checkRequiredSshCredentials() {
         with(commitProperties) {
-            when {
-                Objects.isNull(sshRsaLocation) -> throwProvideRsaLocation()
-                Objects.isNull(sshRsaPassword) -> throwProvideRsaPassword()
-            }
+            requireNotNull(sshRsaLocation) { rsaLocationNotProvidedException() }
+            requireNotNull(sshRsaPassword) { rsaPasswordNotProvidedException() }
         }
     }
 
-    private fun checkRequiredHttpCredentials() {
+    private fun checkRequiredHttpCredentials() =
         with(commitProperties) {
-            when {
-                Objects.isNull(username) -> throwProvideUsername()
-                Objects.isNull(password) -> throwProvidePassword()
-            }
+            requireNotNull(username) { usernameNotProvidedException() }
+            requireNotNull(password) { passwordNotProvidedException() }
         }
-    }
 
     private fun commitFileName() = commitProperties.homeDir + File.separator + newApiVersionFileName
 
