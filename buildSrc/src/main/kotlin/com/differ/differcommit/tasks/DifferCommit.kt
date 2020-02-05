@@ -1,13 +1,13 @@
 package com.differ.differcommit.tasks
 
 import com.differ.differcommit.configuration.AppConfiguration
-import com.differ.differcommit.exceptions.GitCredentialsNotProvidedException
+import com.differ.differcommit.exceptions.*
 import com.differ.differcommit.models.CommitProperties
 import com.differ.differcommit.naming.generator.IncrementVersionGenerator
 import com.differ.differcommit.naming.generator.VersionGenerator
 import com.differ.differcommit.naming.provider.IncrementLastFileProvider
 import com.differ.differcommit.service.CommitService
-import com.differ.differcommit.utils.*
+import com.differ.differcommit.utils.allIsNull
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
@@ -45,18 +45,11 @@ open class DifferCommit : DefaultTask() {
                 sshRsaLocation = project.properties[DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_LOCATION]?.toString()
                 sshRsaPassword = project.properties[DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_PASSWORD]?.toString()
                 when {
-                    allIsNull(username, password, sshRsaLocation, sshRsaPassword) ->
-                        throw GitCredentialsNotProvidedException(
-                            """There is no GIT credentials in properties.
-                              |There are some options:
-                              |You can set property '$DIFFERCOMMIT_VERSIONS_GIT_PUSH_REQUIRED' to false if push is not required.
-                              |If you use http protocol to push data to remote branch then provide properties '$DIFFERCOMMIT_VERSIONS_GIT_HTTP_USERNAME' and '$DIFFERCOMMIT_VERSIONS_GIT_HTTP_PASSWORD'.
-                              |If you use ssh protocol to push data to remote branch then provide properties '$DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_LOCATION' and '$DIFFERCOMMIT_VERSIONS_GIT_SSH_RSA_PASSWORD'.""".trimMargin()
-                        )
-                    Objects.isNull(username) && Objects.nonNull(password) -> throw usernameNotProvidedException()
-                    Objects.nonNull(username) && Objects.isNull(password) -> throw passwordNotProvidedException()
-                    Objects.isNull(sshRsaLocation) && Objects.nonNull(sshRsaPassword) -> throw rsaLocationNotProvidedException()
-                    Objects.nonNull(sshRsaLocation) && Objects.isNull(sshRsaPassword) -> throw rsaPasswordNotProvidedException()
+                    allIsNull(username, password, sshRsaLocation, sshRsaPassword) -> throw GitAllParametesMissing()
+                    Objects.isNull(username) && Objects.nonNull(password) -> throw GitHttpUsernameMissing()
+                    Objects.nonNull(username) && Objects.isNull(password) -> throw GitHttpPasswordMissing()
+                    Objects.isNull(sshRsaLocation) && Objects.nonNull(sshRsaPassword) -> throw GitSshRsaLocationMissing()
+                    Objects.nonNull(sshRsaLocation) && Objects.isNull(sshRsaPassword) -> throw GitSshRsaPasswordMissing()
                 }
             }
         }

@@ -1,8 +1,12 @@
 package com.differ.differcommit.service
 
+import com.differ.differcommit.exceptions.GitHttpPasswordMissing
+import com.differ.differcommit.exceptions.GitHttpUsernameMissing
+import com.differ.differcommit.exceptions.GitSshRsaLocationMissing
+import com.differ.differcommit.exceptions.GitSshRsaPasswordMissing
 import com.differ.differcommit.models.CommitProperties
 import com.differ.differcommit.naming.generator.VersionGenerator
-import com.differ.differcommit.utils.*
+import com.differ.differcommit.utils.requireNotNull
 import com.jcraft.jsch.Session
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand
@@ -80,15 +84,15 @@ class CommitServiceImpl(
 
     private fun checkRequiredSshCredentials() {
         with(commitProperties) {
-            requireNotNull(sshRsaLocation) { rsaLocationNotProvidedException() }
-            requireNotNull(sshRsaPassword) { rsaPasswordNotProvidedException() }
+            requireNotNull(sshRsaLocation) { GitSshRsaLocationMissing() }
+            requireNotNull(sshRsaPassword) { GitSshRsaPasswordMissing() }
         }
     }
 
     private fun checkRequiredHttpCredentials() =
         with(commitProperties) {
-            requireNotNull(username) { usernameNotProvidedException() }
-            requireNotNull(password) { passwordNotProvidedException() }
+            requireNotNull(username) { GitHttpUsernameMissing() }
+            requireNotNull(password) { GitHttpPasswordMissing() }
         }
 
     private fun commitFileName() = commitProperties.homeDir + File.separator + newApiVersionFileName
