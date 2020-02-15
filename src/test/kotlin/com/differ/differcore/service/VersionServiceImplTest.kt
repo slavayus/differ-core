@@ -10,6 +10,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.doReturn
 import org.mockito.MockitoAnnotations
+import org.mockito.Spy
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import java.io.File
@@ -24,6 +25,7 @@ class VersionServiceImplTest {
     lateinit var resource: Resource
 
     @InjectMocks
+    @Spy
     lateinit var versionServiceImpl: VersionServiceImpl
 
     @TempDir
@@ -32,6 +34,7 @@ class VersionServiceImplTest {
     @BeforeEach
     fun initMocks() {
         MockitoAnnotations.initMocks(this)
+        doReturn(tmpDir).`when`(versionServiceImpl).createDVersionsFolder()
     }
 
     @Test

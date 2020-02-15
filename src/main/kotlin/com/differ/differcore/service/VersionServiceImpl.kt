@@ -21,7 +21,7 @@ import javax.annotation.PostConstruct
  * @param [resourceLoader] instance of springframework `ResourceLoader` for working with files.
  */
 @Service
-class VersionServiceImpl(
+open class VersionServiceImpl(
     private val resourceLoader: ResourceLoader
 ) : VersionService {
     private val log = LoggerFactory.getLogger(SaveService::class.java)
@@ -35,8 +35,10 @@ class VersionServiceImpl(
 
     @PostConstruct
     fun init() {
-        dversions = resourceLoader.getResource(LOCATION).takeIf { it.exists() }?.file ?: File(LOCATION)
+        dversions = resourceLoader.getResource(LOCATION).takeIf { it.exists() }?.file ?: createDVersionsFolder()
     }
+
+    open fun createDVersionsFolder() = File(LOCATION)
 
     /**
      * Looking for all available API versions.
